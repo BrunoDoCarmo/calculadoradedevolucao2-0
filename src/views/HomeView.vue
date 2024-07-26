@@ -47,6 +47,7 @@ export default {
   text-align: justify;
   font-size: 1.5rem;
   text-transform: uppercase;
+  color: #2d2c2c;
 }
 .botao {
   width: 100%;
