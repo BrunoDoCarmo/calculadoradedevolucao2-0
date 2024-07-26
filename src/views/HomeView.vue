@@ -44,10 +44,11 @@ export default {
   text-transform: uppercase;
 }
 .welcome .saldacao {
-  text-align: justify;
+  text-align: center;
   font-size: 1.5rem;
   text-transform: uppercase;
   color: #2d2c2c;
+  padding: 0 2rem;
 }
 .botao {
   width: 100%;
