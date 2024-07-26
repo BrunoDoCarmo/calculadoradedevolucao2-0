@@ -1,6 +1,6 @@
 <template>
   <Header />
-  <router-view />
+  <router-view class="router"/>
 </template>
 <script>
 import Header from "./components/Header.vue";
@@ -22,5 +22,10 @@ export default {
 }
 nav a.router-link-exact-active {
   color: #42b983;
+}
+.router {
+  position: absolute;
+  bottom: 0;
+  height: calc(100vh - 5rem);
 }
 </style>
