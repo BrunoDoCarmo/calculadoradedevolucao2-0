@@ -3,7 +3,7 @@
     <ImportarXML @data-loaded="handleDataLoaded" />
     <ProductTest
       :products="products"
-      :cUF="cUF"
+      :chNFe="chNFe"
       :nNF="nNF"
       :formattedDhEmi="formattedDhEmi"
 
@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       products: [],
-      cUF: '',
+      chNFe: '',
       nNF: '',
       dhEmi: '',
       formattedDhEmi: '',
@@ -44,12 +44,12 @@ export default {
     };
   },
   methods: {
-    handleDataLoaded({ products, cUF, nNF, dhEmi, 
+    handleDataLoaded({ products, chNFe, nNF, dhEmi, 
       xNomeEmit, xFantEmit, CNPJEmit, ieEmit,
       xNomeDest, CNPJDest }) {
       this.products = products;
-      this.cUF = cUF;
       this.nNF = nNF;
+      this.chNFe = chNFe;
       this.dhEmi = dhEmi;
       this.formattedDhEmi = this.formatDate(dhEmi);
       // DADOS DO EMITENTE

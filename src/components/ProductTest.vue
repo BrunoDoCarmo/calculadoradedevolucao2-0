@@ -4,33 +4,57 @@
     <div v-else>
       <div class="alert alert-green">Nota Fiscal Eletrónica (NF-e) importada com sucesso.</div>
       <div class="header">Informações da Nota Fiscal</div>
-      <div class="emitente">
-        <div class="campo">
-          <input type="text" name="xFantEmit" :value="xNomeEmit">
-          <label for="xFantEmit">Razão Social Emitente</label>
+      <fieldset>
+        <legend>
+          <h3>Dados da Nota Fiscal</h3>
+          <hr>
+          <span><font-awesome-icon :icon="['fas', 'caret-down']" /></span>
+        </legend>
+        <div class="dados">
+          <div class="campo">
+            <input type="text" name="xFantEmit" :value="nNF">
+            <label for="xFantEmit">Nº Nota Fiscal</label>
+          </div>
+          <div class="campo">
+            <input type="text" name="xFantEmit" :value="formattedDhEmi">
+            <label for="xFantEmit">Nº Nota Fiscal</label>
+          </div>
+          <div class="campo">
+            <input type="text" name="xFantEmit" :value="chNFe">
+            <label for="xFantEmit">Chave NF-e</label>
+          </div>
         </div>
-        <div class="campo">
-          <input type="text" name="xFantEmit" :value="xFantEmit">
-          <label for="xFantEmit">Fantasia Emitente</label>
+      </fieldset>
+      <fieldset>
+        <legend>
+          <h3>Dados do Emitente</h3>
+          <hr>
+          <span><font-awesome-icon :icon="['fas', 'caret-down']" /></span>
+        </legend>
+        <div class="dados">
+          <div class="campo">
+            <input type="text" name="xFantEmit" :value="xNomeEmit">
+            <label for="xFantEmit">Razão Social Emitente</label>
+          </div>
+          <div class="campo">
+            <input type="text" name="xFantEmit" :value="xFantEmit">
+            <label for="xFantEmit">Fantasia Emitente</label>
+          </div>
         </div>
-        <div class="campo">
-          <input type="text" name="cnpjemit" :value="CNPJEmit">
-          <label for="cnpjemit">CNPJ Emitente</label>
+        <div class="dados">
+          <div class="campo">
+            <input type="text" name="cnpjemit" :value="CNPJEmit">
+            <label for="cnpjemit">CNPJ Emitente</label>
+          </div>
+          <div class="campo">
+            <input type="text" name="cnpjemit" :value="ieEmit">
+            <label for="cnpjemit">I.E. Emitente</label>
+          </div>
         </div>
-        <div class="campo">
-          <input type="text" name="cnpjemit" :value="CNPJEmit">
-          <label for="cnpjemit">CNPJ Emitente</label>
-        </div>
-        <div class="campo">
-          <input type="text" name="cnpjemit" :value="ieEmit">
-          <label for="cnpjemit">I.E. Emitente</label>
-        </div>
-      </div>
+      </fieldset>
+    </div>
+  </div>
       <table>
-        <tr>
-          <th>Código UF</th>
-          <td>{{ cUF }}</td>
-        </tr>
         <tr>
           <th>Número da Nota</th>
           <td>{{ nNF }}</td>
@@ -74,8 +98,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -90,7 +112,7 @@ export default {
       type: Boolean,
       required: true
     },
-    cUF: String,
+    chNFe: String,
     nNF: String,
     formattedDhEmi: String,
     // DADOS DO EMITENTE
@@ -107,92 +129,95 @@ export default {
 
 <style scoped>
 .product-list {
-  padding: 2rem;
+    font-family: Arial, sans-serif;
 }
+
 .alert {
-  font-size: 2rem;
-  padding: 2rem;
-  border-radius: 2rem;
-  color: #fff;
-  font-weight: bold;
-  border: 0.3rem solid;
-  text-transform: uppercase;
-  text-align: center;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
 }
 
 .alert-red {
-  background: rgba(255, 129, 129, 0.597);
-  border-color: red;
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 .alert-green {
-  background: rgba(129, 255, 129, 0.597);
-  border-color: green;
-}
-.emitente {
-  display: flex;
-  width: 100%;
-  gap: 1rem;
-}
-.campo {
-  width: 100%;
-  position: relative;
-  margin-bottom: 20px;
-}
-
-input[type="text"] {
-  width: 100%;
-  padding: 1.5rem;
-  font-size: 16px;
-  border: 1px solid #000;
-  border-radius: 4px;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus {
-  border-color: #219150;
-  outline: none;
-}
-
-label {
-  position: absolute;
-  /* top: 50%; */
-  /* transform: translateY(-50%); */
-  /* background: white; */
-  font-size: 16px;
-  padding: 0 .5rem;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus + label,
-input[type="text"]:not(:placeholder-shown) + label {
-  top: -1rem;
-  left: 1rem;
-  border: 1px solid #000;
-  border-radius: .5rem;
-  background: white;
-  font-size: 1.4rem;
+    background-color: #d4edda;
+    color: #155724;
 }
 
 .header {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+fieldset {
+    background-color: #f9f9f9;
+    border: .15rem solid #000;
+    padding: 0 2rem;
+    border-radius: 1rem;
+}
+
+fieldset legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-weight: bold;
-  margin-bottom: 10px;
-}
-
-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+fieldset hr {
+  width: 100%;
+  border-top: .15rem solid #000;
 }
 
-th {
-  background-color: #f4f4f4;
+fieldset h3 {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  white-space: nowrap;
+  padding: 0 .5rem;
 }
+  
+fieldset span {
+  padding: 0 .5rem;
+  font-size: 3rem;
+}
+
+.dados {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.campo {
+    flex: 1 1 45%;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.campo input {
+    width: 100%;
+    padding: 1rem;
+    border: .1rem solid #ccc;
+    border-radius: .5rem;
+    font-size: 1.6rem;
+    box-sizing: border-box;
+}
+
+.campo label {
+    position: absolute;
+    top: -1rem;
+    left: 1rem;
+    background-color: #f9f9f9;
+    padding: 0 .5rem;
+    font-size: 1.4rem;
+    color: #666;
+}
+
 </style>

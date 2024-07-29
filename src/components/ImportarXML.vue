@@ -27,13 +27,15 @@ export default {
             const xmlDoc = parser.parseFromString(xmlString, "application/xml");
 
             // Extract values from XML
-            const cUF = xmlDoc.querySelector("cUF").textContent;
+            const chNFe = xmlDoc.querySelector("chNFe").textContent;
             const nNF = xmlDoc.querySelector("nNF").textContent;
             const dhEmi = xmlDoc.querySelector("dhEmi").textContent;
+
             const xNomeEmit = xmlDoc.querySelector("emit > xNome").textContent;
             const xFantEmit = xmlDoc.querySelector("emit > xFant").textContent;
             const CNPJEmit = xmlDoc.querySelector("emit > CNPJ").textContent;
             const ieEmit = xmlDoc.querySelector("emit > IE").textContent;
+            
             const xNomeDest = xmlDoc.querySelector("dest > xNome").textContent;
             const CNPJDest = xmlDoc.querySelector("dest > CNPJ").textContent;
 
@@ -60,7 +62,7 @@ export default {
                 newProducts.push(product);
             }
             this.products = newProducts;
-            this.$emit("data-loaded", { cUF, nNF, dhEmi: formattedDhEmi, 
+            this.$emit("data-loaded", { chNFe, nNF, dhEmi: formattedDhEmi, 
                 xNomeEmit, xFantEmit, CNPJEmit, ieEmit,
                 xNomeDest, CNPJDest, products: newProducts, });
         },
