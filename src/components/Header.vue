@@ -50,6 +50,7 @@ export default {
 
 .header a .icon {
     font-size: 3rem;
+    color: #219150;
     margin-right: .5rem;
 }
 

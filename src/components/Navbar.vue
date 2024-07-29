@@ -1,18 +1,32 @@
 <template>
   <div>
-    <nav class="navbar">
-      <font-awesome-icon class="icon" :icon="['fas', 'xmark']" id="nav-close"/>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <nav :class="['navbar', { active: openMenu }]">
+      <font-awesome-icon class="icon" :icon="['fas', 'xmark']" id="nav-close" @click="toggleMenu"/>
+      <router-link to="/" @click="toggleMenu">Home</router-link> |
+      <router-link to="/about" @click="toggleMenu">About</router-link> |
+      <router-link to="/products" @click="toggleMenu" >Produtos</router-link>
     </nav>
     <div class="icons">
-      <font-awesome-icon class="icon" :icon="['fas', 'bars']" id="menu-btn"/>
+      <font-awesome-icon class="icon" :icon="['fas', 'bars']" id="menu-btn"  @click="toggleMenu"/>
     </div>
   </div>
 </template>
 <script>
 export default {
   name: "NavBar",
+  props: {
+    products: Array
+  },
+  data() {
+    return {
+      openMenu: false
+    }
+  },
+  methods: {
+    toggleMenu() {
+      this.openMenu = !this.openMenu
+    }
+  },
 };
 </script>
 <style scoped>
@@ -46,12 +60,23 @@ export default {
 }
 
 #menu-btn {
+  position: absolute;
+  top: .75rem;
+  right: 1rem;
+  font-size: 2.5rem;
   cursor: pointer;
   display: none;
 }
 
 .navbar a.router-link-exact-active {
   color: #42b983;
+}
+
+a:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #b7b7b7;
+  border-color: #b7b7b7;
 }
 
 @media (max-width: 768px) {
@@ -65,7 +90,7 @@ export default {
     left: -110%;
     background: #fff;
     z-index: 10000;
-    width: 35rem;
+    width: 100%;
     height: 100%;
     display: -webkit-box;
     display: -ms-flexbox;

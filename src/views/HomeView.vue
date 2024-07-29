@@ -6,21 +6,16 @@
         Simplifique e otimize suas devoluções com nossa ferramenta avançada, aumentando a precisão e eficiência de suas operações.
       </p>
     </div>
-    <div class="botao">
-      <button class="btn">Importar XML</button>
-    </div>
+    <router-link to="/products" class="btn">Importar Nota fiscal</router-link>
   </div>
 </template>
-
 <script>
-// @ is an alias to /src
-
 export default {
   name: "HomeView",
-  components: {},
 };
 </script>
-<style>
+
+<style scoped>
 .home {
   display: flex;
   flex-direction: column;
@@ -33,24 +28,30 @@ export default {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  padding: 2rem;
 }
 .welcome {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 100%;
 }
 .welcome h3 {
   font-size: 3rem;
   text-transform: uppercase;
 }
+.welcome h3 span {
+  color: #219150;
+}
 .welcome .saldacao {
   text-align: center;
   font-size: 1.5rem;
+  padding-top: 0;
   text-transform: uppercase;
   color: #2d2c2c;
-  padding: 0 2rem;
-}
-.botao {
-  width: 100%;
 }
 </style>
