@@ -88,10 +88,6 @@ export default {
   padding: 1rem 0;
 }
 
-.notafiscal-list {
-    font-family: Arial, sans-serif;
-}
-
 .alert {
     padding: 15px;
     border-radius: 5px;

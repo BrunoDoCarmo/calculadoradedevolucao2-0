@@ -6,7 +6,7 @@
         Simplifique e otimize suas devoluções com nossa ferramenta avançada, aumentando a precisão e eficiência de suas operações.
       </p>
     </div>
-    <router-link to="/products" class="btn">Importar Nota fiscal</router-link>
+    <router-link to="/notafiscal" class="btn">Importar Nota fiscal</router-link>
   </div>
 </template>
 <script>
