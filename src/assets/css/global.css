@@ -48,7 +48,7 @@ body {
   padding: 0.8rem 3rem;
   font-size: 2rem;
   border-radius: 0.5rem;
-  border: 0.2rem solid var(--green2);
+  border: 0.2rem solid var(--black);
   color: var(--black);
   cursor: pointer;
   background: none;
