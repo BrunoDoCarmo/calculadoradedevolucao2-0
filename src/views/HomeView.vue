@@ -1,12 +1,12 @@
 <template>
   <div class="home">
     <div class="welcome">
-      <h3>Bem-vindo <br/> <span>Sistema Calculador de Devolução</span></h3>
+      <h3>Bem-vindo <br/> <span>Sistema EmitPro</span></h3>
       <p class="saldacao">
-        Simplifique e otimize suas devoluções com nossa ferramenta avançada, aumentando a precisão e eficiência de suas operações.
+        Aumente a precisão e eficiência das suas operações com nossa ferramenta avançada de gestão de Notas Fiscais Eletrônica.
       </p>
     </div>
-    <router-link to="/notafiscal" class="btn">Importar Nota fiscal</router-link>
+    <router-link to="/notafiscal" class="btn">Emitir Nota fiscal</router-link>
   </div>
 </template>
 <script>

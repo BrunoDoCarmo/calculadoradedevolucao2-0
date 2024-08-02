@@ -1,5 +1,5 @@
 <template>
-  <fieldset>
+  <fieldset :class="{ ativo: !ocultarFielDadosNF }">
     <legend @click="ocultarFielsetDadosNF()">
       <h3>Dados da Nota Fiscal</h3>
       <hr>

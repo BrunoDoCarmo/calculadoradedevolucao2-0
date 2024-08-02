@@ -50,7 +50,7 @@
   
   .modal {
     background: white;
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 0.5rem;
     min-width: 50%;
     max-width: 80%;
@@ -63,12 +63,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    font-size: 2rem;
   }
-  
   .close-button {
     background: none;
     border: none;
-    font-size: 2rem;
+    font-size: 4rem;
     cursor: pointer;
   }
   </style>

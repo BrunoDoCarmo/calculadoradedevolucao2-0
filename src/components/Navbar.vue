@@ -58,9 +58,9 @@ export default {
 
 #menu-btn {
   position: absolute;
-  top: .75rem;
+  bottom: .1rem;
   right: 1rem;
-  font-size: 2.5rem;
+  font-size: 4.25rem;
   cursor: pointer;
   display: none;
 }

@@ -1,5 +1,5 @@
 <template>
-    <fieldset>
+    <fieldset :class="{ ativo: !ocultarFielDadosEmitente }">
         <legend @click="ocultarFielsetDadosEmitente()">
         <h3>Dados do Emitente</h3>
         <hr>

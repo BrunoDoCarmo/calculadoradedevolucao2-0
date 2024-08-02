@@ -1,10 +1,17 @@
 <template>
-    <div class="notafiscal-list">
-      <ImportarXML class="teste" @data-loaded="handleDataLoaded" />
-      <div v-if="!dataLoaded" class="alert alert-red">Nenhuma Nota Fiscal Eletrónica (NF-e) importada.</div>
-      <div v-else>
-      <div class="alert alert-green">Nota Fiscal Eletrónica (NF-e) importada com sucesso.</div>
-      <!-- Abas -->
+  <div class="notafiscal-list">
+    <div class="header">
+      <button @click="goToNotaFiscal">
+        <font-awesome-icon class="icon" :icon="['fas', 'chevron-left']" />
+      </button>
+      <div class="botao">
+        <ImportarXML @data-loaded="handleDataLoaded" />
+        <a href="" class="btn">Buscar no banco de dados</a>
+      </div>
+    </div>
+    <div v-if="!dataLoaded" class="alert alert-red">Nenhuma Nota Fiscal Eletrônica (NF-e) selecionada.</div>
+    <div v-else>
+      <div class="alert alert-green">Nota Fiscal Eletrônica (NF-e) selecionada com sucesso.</div>
       <div class="tabs">
         <button
           v-for="(tab, index) in tabs"
@@ -16,13 +23,8 @@
         </button>
       </div>
       <div class="container-field">
-        <!-- Conteúdo das Abas -->
         <div v-if="activeTab === 0">
-          <DadosNota
-            :chNFe="chNFe"
-            :nNF="nNF"
-            :dhEmi="dhEmi"
-          />
+          <DadosNota :chNFe="chNFe" :nNF="nNF" :dhEmi="dhEmi" />
         </div>
         <div v-if="activeTab === 1">
           <DadosEmitente
@@ -36,98 +38,133 @@
     </div>
   </div>
 </template>
+
 <script>
 import ImportarXML from './ImportarXML.vue'
 import DadosNota from './DadosNota.vue'
 import DadosEmitente from './DadosEmitente.vue'
+
 export default {
-    name: 'NotaFiscalDevolucao',
-    components: {
-        ImportarXML,
-        DadosNota,
-        DadosEmitente
-    },
-    data() {
-        return {
-        products: [],
-        chNFe: '',
-        nNF: '',
-        dhEmi: '',
-        xNomeEmit: '',
-        CNPJEmit: '',
-        xNomeDest: '',
-        CNPJDest: '',
-        dataLoaded: false,
-        tabs: ['Dados da Nota Fiscal', 'Dados do Emitente'],
-        activeTab: 0,
-        };
-    },
-    methods: {
-        handleDataLoaded({ products, chNFe, nNF, dhEmi, 
-        xNomeEmit, xFantEmit, CNPJEmit, ieEmit,
-        xNomeDest, CNPJDest }) {
-        this.products = products;
-        this.nNF = nNF;
-        this.chNFe = chNFe;
-        this.dhEmi = dhEmi;
-        // DADOS DO EMITENTE
-        this.xNomeEmit = xNomeEmit;
-        this.xFantEmit = xFantEmit;
-        this.CNPJEmit = CNPJEmit;
-        this.ieEmit = ieEmit;
-        // DADOS DO DESTINATARIO
-        this.xNomeDest = xNomeDest;
-        this.CNPJDest = CNPJDest;
-        this.dataLoaded = true;
-        },
+  name: 'NotaFiscalDevolucao',
+  props: {
+    dados: {
+      type: Object,
+      required: false // Pode ser true se sempre precisar dos dados
     }
+  },
+  components: {
+    ImportarXML,
+    DadosNota,
+    DadosEmitente
+  },
+  data() {
+    return {
+      products: [],
+      chNFe: '',
+      nNF: '',
+      dhEmi: '',
+      xNomeEmit: '',
+      xFantEmit: '',
+      CNPJEmit: '',
+      ieEmit: '',
+      xNomeDest: '',
+      CNPJDest: '',
+      dataLoaded: false,
+      tabs: ['Dados da Nota Fiscal', 'Dados do Emitente', 'Produtos'],
+      activeTab: 0,
+    };
+  },
+  methods: {
+    handleDataLoaded({ products, chNFe, nNF, dhEmi, xNomeEmit, xFantEmit, CNPJEmit, ieEmit, xNomeDest, CNPJDest }) {
+      this.products = products;
+      this.chNFe = chNFe;
+      this.nNF = nNF;
+      this.dhEmi = dhEmi;
+      this.xNomeEmit = xNomeEmit;
+      this.xFantEmit = xFantEmit;
+      this.CNPJEmit = CNPJEmit;
+      this.ieEmit = ieEmit;
+      this.xNomeDest = xNomeDest;
+      this.CNPJDest = CNPJDest;
+      this.dataLoaded = true;
+    },
+    goToNotaFiscal() {
+      this.$router.push({ name: 'NotaFiscal' }); // Redireciona para a rota 'NotaFiscal'
+    }
+  },
+  created() {
+    if (this.dados) {
+      this.handleDataLoaded(this.dados);
+    }
+  }
 };
 </script>
+
 <style scoped>
-.teste {
-  padding: 1rem 0;
+.notafiscal-list .header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  gap: 3rem;
+}
+
+.notafiscal-list .header .botao {
+  display: flex;
+  gap: 1rem;
+}
+
+.notafiscal-list .header button {
+  font-size: 3rem;
+  cursor: pointer;
+}
+
+.notafiscal-list .header .botao .btn {
+  border-color: var(--black);
+  background-color: #007bff;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.notafiscal-list .header .botao .btn:hover {
+  background-color: #0056b3;
 }
 
 .alert {
-    padding: 15px;
-    border-radius: 5px;
-    font-size: 16px;
-    text-align: center;
+  padding: 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
 }
 
 .alert-red {
-    background-color: #f8d7da;
-    color: #721c24;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .alert-green {
-    background-color: #d4edda;
-    color: #155724;
+  background-color: #d4edda;
+  color: #155724;
 }
 
-/* Estilo das Abas */
 .tabs {
   display: flex;
   height: 6rem;
   margin-top: 1rem;
+  padding: 0 1rem;
 }
 
 .tabs button {
   flex: 1;
   padding: 1rem;
-  background-color: #ccc;
+  background-color: #d4d4d4;
   border: none;
   cursor: pointer;
   font-size: 2rem;
   text-transform: uppercase;
   transition: background-color 0.3s;
-  margin: 0 .25rem;
+  margin: 0 .1rem;
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
-}
-
-.tabs button.active:hover {
-  background-color: rgb(255, 241, 241);
 }
 
 .tabs button.active {
@@ -136,7 +173,10 @@ export default {
   font-weight: bold;
 }
 
+.tabs button.active:hover {
+  background-color: rgb(255, 241, 241);
+}
 .tabs button:hover {
-  background-color: #d4d4d4;
+  background-color: #ccc;
 }
 </style>

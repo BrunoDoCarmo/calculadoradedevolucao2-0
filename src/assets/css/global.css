@@ -9,6 +9,8 @@
   --font-3: "Open Sans", sans-serif;
 
   --orange: #ff7800;
+  --green1: #219150;
+  --green2: #3de282;
   --blue: #130f40;
   --black: #000;
   --light-color: #666;
@@ -46,24 +48,25 @@ body {
   padding: 0.8rem 3rem;
   font-size: 2rem;
   border-radius: 0.5rem;
-  border: 0.2rem solid var(--black);
+  border: 0.2rem solid var(--green2);
   color: var(--black);
   cursor: pointer;
   background: none;
   transition: all 0.2s linear;
-  white-space: nowrap;
   text-transform: uppercase;
 }
 .btn:hover {
   color: #fff;
-  background-color: var(--orange);
+  background-color: var(--green2);
 }
 
 .container-field{
   padding: 0 2rem;
   width: 100%;
   overflow-y: auto;
-  height: calc(100% - 18.5rem);
+  /* height: calc(100% - 18.5rem); */
+  height: 100%;
+  border: .15rem solid #000;
 }
 fieldset {
   border-top: .15rem solid #000;

@@ -1,12 +1,12 @@
 <template>
   <div>
     <header class="header">
-      <router-link to="./">
-        <font-awesome-icon class="icon" :icon="['fas', 'calculator']" />
-        Calculador Devolução
+      <router-link to="/">
+        <font-awesome-icon class="icon" :icon="['fas', 'newspaper']" />
+        EmitPro
       </router-link>
-      <Navbar />
       <span>Versão: 2.0.0</span>
+      <Navbar />
     </header>
   </div>
 </template>
@@ -40,7 +40,7 @@ export default {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
 .header a {
-  font-family: var(--font-1);
+  font-family: var(--font-2);
   font-size: 1.8rem;
   color: var(--black);
   display: flex;
@@ -58,9 +58,15 @@ export default {
     text-transform: uppercase;
     font-weight: bold;
     position: absolute;
-    bottom: 0;
+    top: 0;
     right: 1rem;
     font-size: .8rem;
     font-family: var(--font-3);
+}
+
+@media (max-width: 768px) {
+  .header a {
+    font-size: 3rem;
+  }
 }
 </style>
