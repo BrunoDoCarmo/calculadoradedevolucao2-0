@@ -4,7 +4,7 @@
       <font-awesome-icon class="icon" :icon="['fas', 'xmark']" id="nav-close" @click="toggleMenu"/>
       <router-link to="/" @click="toggleMenu">Home</router-link> |
       <router-link to="/about" @click="toggleMenu">About</router-link> |
-      <router-link to="/products" @click="toggleMenu" >Produtos</router-link>
+      <router-link to="/notafiscal" @click="toggleMenu" >Nota Fiscal</router-link>
     </nav>
     <div class="icons">
       <font-awesome-icon class="icon" :icon="['fas', 'bars']" id="menu-btn"  @click="toggleMenu"/>
@@ -14,9 +14,6 @@
 <script>
 export default {
   name: "NavBar",
-  props: {
-    products: Array
-  },
   data() {
     return {
       openMenu: false

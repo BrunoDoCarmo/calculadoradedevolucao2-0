@@ -7,12 +7,12 @@ import store from './store'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCalculator, faBars, faXmark, faCaretDown } from '@fortawesome/free-solid-svg-icons'
+import { faCalculator, faBars, faXmark, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons'
 import {  } from '@fortawesome/free-brands-svg-icons'
 
 export { FontAwesomeIcon }
 
-library.add(faCalculator, faBars, faXmark, faCaretDown)
+library.add(faCalculator, faBars, faXmark, faCaretDown, faCaretUp)
 
 const app = createApp(App)
 app.use(store)
