@@ -9,7 +9,7 @@
         </a>
       </span>
     </legend>
-    <div class="dados">
+    <div v-if="!ocultarFielDadosNF" class="dados">
       <div class="linha-campo">
         <div class="campo">
           <label for="mod">Modelo</label>
@@ -26,10 +26,6 @@
         <div class="campo">
           <label for="dhEmit">Data de Emissão</label>
           <input type="text" id="dhEmit" name="dhEmit" :value="dadosNF.dhEmi" disabled />
-        </div>
-        <div class="campo">
-          <label for="dhSaiEnt">Data de Saída/Entrada</label>
-          <input type="text" id="dhSaiEnt" name="dhSaiEnt" :value="dadosNF.dhSaiEnt" disabled />
         </div>
       </div>
       <div class="linha-campo">

@@ -118,7 +118,6 @@ export default {
         serie: xmlDoc.querySelector("serie").textContent,
         nNF: xmlDoc.querySelector("nNF").textContent,
         dhEmi: this.converterData(xmlDoc.querySelector("dhEmi").textContent),
-        dhSaiEnt: this.converterData(xmlDoc.querySelector("dhSaiEnt").textContent),
         tpNFTexto: tpNFTexto,
         idDestTexto: idDestTexto,
         cMunFG: xmlDoc.querySelector("cMunFG").textContent,
@@ -131,21 +130,53 @@ export default {
         chNFe: xmlDoc.querySelector("chNFe").textContent,
       }
 
-      const xNomeEmit = xmlDoc.querySelector("emit > xNome").textContent
-      const xFantEmit = xmlDoc.querySelector("emit > xFant").textContent
-      const CNPJEmit = xmlDoc.querySelector("emit > CNPJ").textContent
-      const ieEmit = xmlDoc.querySelector("emit > IE").textContent
-      const xNomeDest = xmlDoc.querySelector("dest > xNome").textContent
-      const CNPJDest = xmlDoc.querySelector("dest > CNPJ").textContent
+      const dadosEmitente = {
+        CNPJ: xmlDoc.querySelector("emit > CNPJ").textContent,
+        xNome: xmlDoc.querySelector("emit > xNome").textContent,
+        xLgr: xmlDoc.querySelector("emit > enderEmit > xLgr").textContent,
+        nro: xmlDoc.querySelector("emit > enderEmit > nro").textContent,
+        xBairro: xmlDoc.querySelector("emit > enderEmit > xBairro").textContent,
+        cMun: xmlDoc.querySelector("emit > enderEmit > cMun").textContent,
+        xMun: xmlDoc.querySelector("emit > enderEmit > xMun").textContent,
+        UF: xmlDoc.querySelector("emit > enderEmit > UF").textContent,
+        CEP: xmlDoc.querySelector("emit > enderEmit > CEP").textContent,
+        IE: xmlDoc.querySelector("emit > IE").textContent,
+      };
 
+      const dadosDestinatario = {
+        CNPJ: xmlDoc.querySelector("dest > CNPJ").textContent,
+        xNome: xmlDoc.querySelector("dest > xNome").textContent,
+        xLgr: xmlDoc.querySelector("dest > enderDest > xLgr").textContent,
+        nro: xmlDoc.querySelector("dest > enderDest > nro").textContent,
+        xBairro1: xmlDoc.querySelector("dest > enderDest > xBairro").textContent,
+        cMun: xmlDoc.querySelector("dest > enderDest > cMun").textContent,
+        xMun: xmlDoc.querySelector("dest > enderDest > xMun").textContent,
+        UF: xmlDoc.querySelector("dest > enderDest > UF").textContent,
+        CEP: xmlDoc.querySelector("dest > enderDest > CEP").textContent,
+        indIEDest: xmlDoc.querySelector("dest > indIEDest").textContent,
+        IE: xmlDoc.querySelector("dest > IE").textContent,
+      };
+
+      // Processa os produtos
+      const items = xmlDoc.getElementsByTagName("det");
+      const newProducts = [];
+
+      for (let item of items) {
+        const produto = {
+          cProd: item.getElementsByTagName("cProd")[0].textContent.trim(),
+          xProd: item.getElementsByTagName("xProd")[0].textContent.trim(), // Nome do produto
+          qCom: parseFloat(item.getElementsByTagName("qCom")[0].textContent.trim() || 0), // Quantidade
+          vUnCom: parseFloat(item.getElementsByTagName("vUnCom")[0].textContent.trim() || 0), // Valor Unitário
+        };
+        newProducts.push(produto);
+      }
+
+      // Dados para emissão do evento
       const data = {
         dadosNF,
-        xNomeEmit,
-        xFantEmit,
-        CNPJEmit,
-        ieEmit,
-        xNomeDest,
-        CNPJDest,
+        dadosEmitente,
+        dadosDestinatario,
+        produto: newProducts
       };
 
       this.$emit("data-loaded", data);

@@ -27,12 +27,13 @@
           <DadosNota :dadosNF="dadosNF" />
         </div>
         <div v-if="activeTab === 1">
-          <DadosEmitente
-            :xNomeEmit="xNomeEmit"
-            :xFantEmit="xFantEmit"
-            :CNPJEmit="CNPJEmit"
-            :ieEmit="ieEmit"
-          />
+          <DadosEmitente :dadosEmitente="dadosEmitente" />
+        </div>
+        <div v-if="activeTab === 2">
+          <DadosDestinatario :dadosDestinatario="dadosDestinatario" />
+        </div>
+        <div v-if="activeTab === 3">
+          <Produtos :produto="produto" />
         </div>
       </div>
     </div>
@@ -43,6 +44,8 @@
 import ImportarXML from './ImportarXML.vue'
 import DadosNota from './DadosNota.vue'
 import DadosEmitente from './DadosEmitente.vue'
+import DadosDestinatario from './DadosDestinatario.vue'
+import Produtos from './Produtos.vue'
 
 export default {
   name: 'NotaFiscalDevolucao',
@@ -55,33 +58,28 @@ export default {
   components: {
     ImportarXML,
     DadosNota,
-    DadosEmitente
+    DadosEmitente,
+    DadosDestinatario,
+    Produtos
   },
   data() {
     return {
-      products: [],
+      produto: [],
       dadosNF: {},
-      xNomeEmit: '',
-      xFantEmit: '',
-      CNPJEmit: '',
-      ieEmit: '',
-      xNomeDest: '',
-      CNPJDest: '',
+      dadosEmitente: {},
+      dadosDestinatario: {},
       dataLoaded: false,
-      tabs: ['Dados da Nota Fiscal', 'Dados do Emitente', 'Produtos'],
+      tabs: ['Dados da Nota Fiscal', 'Dados do Emitente', 'Dados do Destinatário', 'Produtos'],
       activeTab: 0,
     };
   },
   methods: {
-    handleDataLoaded({ products, dadosNF, xNomeEmit, xFantEmit, CNPJEmit, ieEmit, xNomeDest, CNPJDest }) {
-      this.products = products;
+    handleDataLoaded({ produto, dadosNF, dadosEmitente, dadosDestinatario }) {
+      console.log(produto); // Verifique a estrutura aqui
+      this.produto = produto;
       this.dadosNF = dadosNF;
-      this.xNomeEmit = xNomeEmit;
-      this.xFantEmit = xFantEmit;
-      this.CNPJEmit = CNPJEmit;
-      this.ieEmit = ieEmit;
-      this.xNomeDest = xNomeDest;
-      this.CNPJDest = CNPJDest;
+      this.dadosEmitente = dadosEmitente;
+      this.dadosDestinatario = dadosDestinatario;
       this.dataLoaded = true;
     },
     goToNotaFiscal() {
@@ -100,7 +98,7 @@ export default {
 .notafiscal-list .header {
   display: flex;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: .5rem 2rem;
   gap: 3rem;
 }
 
@@ -145,8 +143,7 @@ export default {
 .tabs {
   display: flex;
   height: 6rem;
-  margin-top: 1rem;
-  padding: 0 1rem;
+  /* padding: 0 1rem; */
 }
 
 .tabs button {
@@ -160,6 +157,7 @@ export default {
   text-transform: uppercase;
   transition: background-color 0.3s;
   margin: 0 .1rem;
+  margin-top: .5rem;
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
 }
