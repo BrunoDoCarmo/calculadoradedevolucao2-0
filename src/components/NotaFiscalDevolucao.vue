@@ -24,7 +24,7 @@
       </div>
       <div class="container-field">
         <div v-if="activeTab === 0">
-          <DadosNota :chNFe="chNFe" :nNF="nNF" :dhEmi="dhEmi" />
+          <DadosNota :dadosNF="dadosNF" />
         </div>
         <div v-if="activeTab === 1">
           <DadosEmitente
@@ -50,7 +50,7 @@ export default {
     dados: {
       type: Object,
       required: false // Pode ser true se sempre precisar dos dados
-    }
+    },
   },
   components: {
     ImportarXML,
@@ -60,9 +60,7 @@ export default {
   data() {
     return {
       products: [],
-      chNFe: '',
-      nNF: '',
-      dhEmi: '',
+      dadosNF: {},
       xNomeEmit: '',
       xFantEmit: '',
       CNPJEmit: '',
@@ -75,11 +73,9 @@ export default {
     };
   },
   methods: {
-    handleDataLoaded({ products, chNFe, nNF, dhEmi, xNomeEmit, xFantEmit, CNPJEmit, ieEmit, xNomeDest, CNPJDest }) {
+    handleDataLoaded({ products, dadosNF, xNomeEmit, xFantEmit, CNPJEmit, ieEmit, xNomeDest, CNPJDest }) {
       this.products = products;
-      this.chNFe = chNFe;
-      this.nNF = nNF;
-      this.dhEmi = dhEmi;
+      this.dadosNF = dadosNF;
       this.xNomeEmit = xNomeEmit;
       this.xFantEmit = xFantEmit;
       this.CNPJEmit = CNPJEmit;
@@ -130,9 +126,9 @@ export default {
 }
 
 .alert {
-  padding: 15px;
-  border-radius: 5px;
-  font-size: 16px;
+  padding: 1.5rem;
+  border-radius: .5rem;
+  font-size: 1.6rem;
   text-align: center;
 }
 
@@ -159,6 +155,7 @@ export default {
   background-color: #d4d4d4;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
   font-size: 2rem;
   text-transform: uppercase;
   transition: background-color 0.3s;
@@ -168,7 +165,7 @@ export default {
 }
 
 .tabs button.active {
-  box-shadow: 0 -0.5px 5px #000;
+  box-shadow: 0 .1rem .5rem #000;
   background-color: rgb(255, 241, 241);
   font-weight: bold;
 }
@@ -178,5 +175,18 @@ export default {
 }
 .tabs button:hover {
   background-color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .tabs button {
+    box-shadow: 0 .1rem .5rem #000;
+    margin: .5rem 0;
+    border-radius: 1rem;
+  }
 }
 </style>
