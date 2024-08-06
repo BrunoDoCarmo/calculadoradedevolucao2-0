@@ -9,19 +9,14 @@
         <a href="" class="btn">Buscar no banco de dados</a>
       </div>
     </div>
-    <div v-if="!dataLoaded" class="alert alert-red">Nenhuma Nota Fiscal Eletrônica (NF-e) selecionada.</div>
+    <div v-if="!dataLoaded" class="alert alert-red">
+      Nenhuma Nota Fiscal Eletrônica (NF-e) selecionada.
+    </div>
     <div v-else>
-      <div class="alert alert-green">Nota Fiscal Eletrônica (NF-e) selecionada com sucesso.</div>
-      <div class="tabs">
-        <button
-          v-for="(tab, index) in tabs"
-          :key="index"
-          :class="{ active: activeTab === index }"
-          @click="activeTab = index"
-        >
-          {{ tab }}
-        </button>
+      <div class="alert alert-green">
+        Nota Fiscal Eletrônica (NF-e) selecionada com sucesso.
       </div>
+      <Abas :abas="tabs" v-model:activeTab="activeTab" />
       <div class="container-field">
         <div v-if="activeTab === 0">
           <DadosNota :dadosNF="dadosNF" />
@@ -33,7 +28,10 @@
           <DadosDestinatario :dadosDestinatario="dadosDestinatario" />
         </div>
         <div v-if="activeTab === 3">
-          <Produtos :produto="produto" />
+          <ProdutosNota :produto="produto" />
+        </div>
+        <div v-if="activeTab === 4">
+          <ProdutosSelecionados :produto="produto" />
         </div>
       </div>
     </div>
@@ -41,26 +39,24 @@
 </template>
 
 <script>
-import ImportarXML from './ImportarXML.vue'
-import DadosNota from './DadosNota.vue'
-import DadosEmitente from './DadosEmitente.vue'
-import DadosDestinatario from './DadosDestinatario.vue'
-import Produtos from './Produtos.vue'
+import ImportarXML from "./ImportarXML.vue";
+import DadosNota from "./DadosNota.vue";
+import DadosEmitente from "./DadosEmitente.vue";
+import DadosDestinatario from "./DadosDestinatario.vue";
+import Abas from "./Abas.vue";
+import ProdutosNota from "./ProdutosNota.vue";
+import ProdutosSelecionados from "./ProdutosSelecionados.vue";
 
 export default {
-  name: 'NotaFiscalDevolucao',
-  props: {
-    dados: {
-      type: Object,
-      required: false // Pode ser true se sempre precisar dos dados
-    },
-  },
+  name: "NotaFiscalDevolucao",
   components: {
     ImportarXML,
     DadosNota,
     DadosEmitente,
     DadosDestinatario,
-    Produtos
+    Abas,
+    ProdutosNota,
+    ProdutosSelecionados,
   },
   data() {
     return {
@@ -69,13 +65,18 @@ export default {
       dadosEmitente: {},
       dadosDestinatario: {},
       dataLoaded: false,
-      tabs: ['Dados da Nota Fiscal', 'Dados do Emitente', 'Dados do Destinatário', 'Produtos'],
+      tabs: [
+        "Dados da Nota Fiscal",
+        "Dados do Emitente",
+        "Dados do Destinatário",
+        "Produtos da Nota",
+        "Produtos Selecionados",
+      ],
       activeTab: 0,
     };
   },
   methods: {
     handleDataLoaded({ produto, dadosNF, dadosEmitente, dadosDestinatario }) {
-      console.log(produto); // Verifique a estrutura aqui
       this.produto = produto;
       this.dadosNF = dadosNF;
       this.dadosEmitente = dadosEmitente;
@@ -83,14 +84,14 @@ export default {
       this.dataLoaded = true;
     },
     goToNotaFiscal() {
-      this.$router.push({ name: 'NotaFiscal' }); // Redireciona para a rota 'NotaFiscal'
-    }
+      this.$router.push({ name: "NotaFiscal" }); // Redireciona para a rota 'NotaFiscal'
+    },
   },
   created() {
     if (this.dados) {
       this.handleDataLoaded(this.dados);
     }
-  }
+  },
 };
 </script>
 
@@ -98,7 +99,7 @@ export default {
 .notafiscal-list .header {
   display: flex;
   justify-content: space-between;
-  padding: .5rem 2rem;
+  padding: 0.5rem 2rem;
   gap: 3rem;
 }
 
@@ -125,7 +126,7 @@ export default {
 
 .alert {
   padding: 1.5rem;
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   font-size: 1.6rem;
   text-align: center;
 }
@@ -138,53 +139,5 @@ export default {
 .alert-green {
   background-color: #d4edda;
   color: #155724;
-}
-
-.tabs {
-  display: flex;
-  height: 6rem;
-  /* padding: 0 1rem; */
-}
-
-.tabs button {
-  flex: 1;
-  padding: 1rem;
-  background-color: #d4d4d4;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-  font-size: 2rem;
-  text-transform: uppercase;
-  transition: background-color 0.3s;
-  margin: 0 .1rem;
-  margin-top: .5rem;
-  border-top-left-radius: 2rem;
-  border-top-right-radius: 2rem;
-}
-
-.tabs button.active {
-  box-shadow: 0 .1rem .5rem #000;
-  background-color: rgb(255, 241, 241);
-  font-weight: bold;
-}
-
-.tabs button.active:hover {
-  background-color: rgb(255, 241, 241);
-}
-.tabs button:hover {
-  background-color: #ccc;
-}
-
-@media (max-width: 768px) {
-  .tabs {
-    height: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  .tabs button {
-    box-shadow: 0 .1rem .5rem #000;
-    margin: .5rem 0;
-    border-radius: 1rem;
-  }
 }
 </style>

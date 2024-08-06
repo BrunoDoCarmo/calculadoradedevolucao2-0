@@ -11,6 +11,7 @@
                     <th>Nome Produto</th>
                     <th>QTD</th>
                     <th>VLR Unit.</th>
+                    <th>VLR Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,7 +20,8 @@
                     <td>{{ product.cProd }}</td>
                     <td>{{ product.xProd }}</td>
                     <td>{{ product.qCom }}</td>
-                    <td>{{ product.vUnCom.toFixed(2) }}</td>
+                    <td>{{ product.vUnCom }}</td>
+                    <td>{{ product.vlrTotal }}</td>
                 </tr>
             </tbody>
         </table>
