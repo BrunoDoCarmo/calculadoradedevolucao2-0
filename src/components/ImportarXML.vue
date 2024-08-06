@@ -1,25 +1,42 @@
 <template>
-  <div class="botao">
-    <a class="btn" @click="triggerFileInput">
-      {{ fileImported ? "Importar Novo XML" : "Importar XML" }}
-    </a>
-    <input
-      type="file"
-      ref="fileInput"
-      @change="handleFileUpload"
-      style="display: none"
-      accept=".xml"
-    />
-  </div>
+  <a class="btn" @click="triggerFileInput">
+    {{ fileImported ? "Importar Novo XML" : "Importar XML" }}
+  </a>
+  <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" accept=".xml" />
+  <Modal 
+    :visible="showErrorModal" 
+    :title="'Erro'" 
+    :errorMessage="errorMessage" 
+    @close="closeErrorModal"
+  />
+  <!-- Modal para Alertas -->
+  <Modal 
+    :visible="showAlertModal" 
+    :title="'Alerta'" 
+    :alertMessage="alertMessage" 
+    @close="closeAlertModal"
+  />
+  <!-- Botão para remover nota importada -->
+  <button v-if="fileImported" @click="removeImportedNote" class="btn-remove">Remover Nota Importada</button>
 </template>
 
 <script>
+import Modal from "./Modal.vue";
+
 export default {
   name: "ImportarXML",
+  components: {
+    Modal,
+  },
   data() {
     return {
+      showErrorModal: false,
+      showAlertModal: false,
+      errorMessage: "",
+      alertMessage: "",
+      importedNotes: [],
       cnpj: null,
-      fileImported: false, // Estado para saber se um arquivo já foi importado
+      fileImported: false,
     };
   },
   methods: {
@@ -28,121 +45,68 @@ export default {
     },
     handleFileUpload(event) {
       const file = event.target.files[0];
-      
+
       if (file) {
         const reader = new FileReader();
-        
         reader.onload = (e) => {
           const xmlText = e.target.result;
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-          // Supondo que o CNPJ esteja dentro de uma tag <CNPJ>
-          const cnpjElement = xmlDoc.querySelector("CNPJ");
-          if (cnpjElement) {
-            const newCnpj = cnpjElement.textContent.trim();
+          const chNFe = xmlDoc.querySelector("chNFe")?.textContent.trim();
+          const cnpjElement = xmlDoc.querySelector("emit > CNPJ")?.textContent.trim();
 
-            if (!this.cnpj) {
-              // Se ainda não temos um CNPJ, armazene o CNPJ do primeiro XML
-              this.cnpj = newCnpj;
-              this.fileImported = true; // Marca que um arquivo foi importado
-            } else if (this.cnpj !== newCnpj) {
-              // Se o CNPJ for diferente, exiba uma mensagem de erro
-              alert("O CNPJ do arquivo selecionado não coincide com o CNPJ do arquivo anterior.");
-              return;
-            }
-
-            // Processa o arquivo XML
-            this.processXML(xmlDoc);
-          } else {
-            alert("O arquivo XML não contém um CNPJ válido.");
+          if (!chNFe || !cnpjElement) {
+            this.errorMessage = "O arquivo XML não contém dados válidos.";
+            this.showErrorModal = true;
+            return;
           }
-        };
 
+          if (this.cnpj && this.cnpj !== cnpjElement) {
+            this.alertMessage = "O CNPJ do arquivo selecionado não coincide com o CNPJ do arquivo anterior.";
+            this.showAlertModal = true;
+            return;
+          }
+
+          if (this.importedNotes.includes(chNFe)) {
+            this.alertMessage = "Essa nota já foi importada anteriormente.";
+            this.showAlertModal = true;
+            return;
+          }
+
+          this.importedNotes.push(chNFe);
+          this.fileImported = true;
+          this.cnpj = cnpjElement;
+
+          this.processXML(xmlDoc);
+        };
         reader.readAsText(file);
       }
     },
+    removeImportedNote() {
+      const lastChNFe = this.importedNotes.pop();
+      if (this.importedNotes.length === 0) {
+        this.fileImported = false;
+        this.cnpj = null;
+      }
+      this.$emit("note-removed", lastChNFe);
+    },
+    closeErrorModal() {
+      this.showErrorModal = false;
+    },
+    closeAlertModal() {
+      this.showAlertModal = false;
+    },
     processXML(xmlDoc) {
       const tpNF = xmlDoc.querySelector("tpNF")?.textContent;
-      let tpNFTexto = '';
-      if (tpNF == 0) {
-        tpNFTexto = 'Entrada';
-      } else {
-        tpNFTexto = 'Saída';
-      }
-      
+      const tpNFTexto = tpNF === '0' ? 'Entrada' : 'Saída';
+
       const idDest = xmlDoc.querySelector("idDest")?.textContent;
-      let idDestTexto = '';
-      if (idDest == 1) {
-        idDestTexto = 'Operação Interna';
-      } else if (idDest == 2) {
-        idDestTexto = 'Operação Interestadual';
-      } else {
-        idDestTexto = 'Operação com Exterior';
-      }
+      const idDestTexto = this.getIdDestTexto(idDest);
 
       const tpImp = xmlDoc.querySelector("tpImp")?.textContent;
-      let tpImpTexto = '';
-      if (tpImp == 1) {
-        tpImpTexto = 'DANFE normal, Retrato';
-      } else if (tpImp == 2) {
-        tpImpTexto = 'DANFE normal, Paisagem';
-      } else if (tpImp == 3) {
-        tpImpTexto = 'DANFE Simplificado';
-      } else if (tpImp == 4) {
-        tpImpTexto = 'DANFE NFC-e';
-      } else {
-        tpImpTexto = 'DANFE NFC-e em mensagem eletrônica';
-      }
-      
-      const tpEmis = xmlDoc.querySelector("tpEmis")?.textContent;
-      let tpEmisTexto = '';
-      if (tpEmis == 1) {
-        tpEmisTexto = 'Emissão normal (não em contingência)';
-      } else if (tpEmis == 2) {
-        tpEmisTexto = 'Contingência FS-IA, com impressão do DANFE em Formulário de Segurança - Impressor Autônomo';
-      } else if (tpEmis == 3) {
-        tpEmisTexto = 'Contingência SCAN (Sistema de Contingência do Ambiente Nacional); *Desativado  * NT 2015/002';
-      } else if (tpEmis == 4) {
-        tpEmisTexto = 'Contingência EPEC (Evento Prévio da Emissão em Contingência)';
-      } else if (tpEmis == 5) {
-        tpEmisTexto = 'Contingência FS-DA, com impressão do DANFE em Formulário de Segurança - Documento Auxiliar';
-      } else if (tpEmis == 6) {
-        tpEmisTexto = 'Contingência SVC-AN (SEFAZ Virtual de Contingência do AN)';
-      } else if (tpEmis == 7) {
-        tpEmisTexto = 'Contingência SVC-RS (SEFAZ Virtual de Contingência do RS)';
-      } else {
-        tpEmisTexto = 'Contingência off-line da NFC-e;';
-      }
+      const tpImpTexto = this.getTpImpTexto(tpImp);
 
-      const tpAmb = xmlDoc.querySelector("tpAmb")?.textContent;
-      let tpAmbTexto = '';
-      if (tpAmb == 1) {
-        tpAmbTexto = 'Produção';
-      } else {
-        tpAmbTexto = 'Homologação';
-      }
-      
-      const finNFe = xmlDoc.querySelector("finNFe")?.textContent;
-      let finNFeTexto = '';
-      if (finNFe == 1) {
-        finNFeTexto = 'NF-e normal';
-      } else if (finNFe == 2) {
-        finNFeTexto = 'NF-e complementar';
-      } else if (finNFe == 3) {
-        finNFeTexto = 'NF-e de ajuste';
-      } else {
-        finNFeTexto = 'Devolução de mercadoria';
-      }
-
-      const indFinal = xmlDoc.querySelector("indFinal")?.textContent;
-      let indFinalTexto = '';
-      if (indFinal == 0) {
-        indFinalTexto = 'Não é para consumidor final';
-      } else {
-        indFinalTexto = 'Para consumidor final';
-      }
-      
       const dadosNF = {
         mod: xmlDoc.querySelector("mod")?.textContent || '',
         serie: xmlDoc.querySelector("serie")?.textContent || '',
@@ -152,10 +116,10 @@ export default {
         idDestTexto,
         cMunFG: xmlDoc.querySelector("cMunFG")?.textContent || '',
         tpImpTexto,
-        tpEmisTexto,
-        tpAmbTexto,
-        finNFeTexto,
-        indFinalTexto,
+        tpEmisTexto: this.getTpEmisTexto(xmlDoc),
+        tpAmbTexto: this.getTpAmbTexto(xmlDoc),
+        finNFeTexto: this.getFinNFeTexto(xmlDoc),
+        indFinalTexto: this.getIndFinalTexto(xmlDoc),
         chNFe: xmlDoc.querySelector("chNFe")?.textContent || '',
       };
 
@@ -186,29 +150,24 @@ export default {
         IE: xmlDoc.querySelector("dest > IE")?.textContent || '',
       };
 
-      // Processa os produtos
       const items = xmlDoc.getElementsByTagName("det");
-      const newProducts = [];
-
-      for (let item of items) {
+      const newProducts = Array.from(items).map(item => {
         const cProd = item.querySelector("cProd")?.textContent.trim() || '';
         const xProd = item.querySelector("xProd")?.textContent.trim() || '';
         const qCom = parseFloat(item.querySelector("qCom")?.textContent.trim() || 0);
         const vUnCom = parseFloat(item.querySelector("vUnCom")?.textContent.trim() || 0);
         
         const vlrTotal = qCom * vUnCom;
-        
-        const produto = {
-          cProd,
-          xProd, // Nome do produto
-          qCom, // Quantidade
-          vUnCom: vUnCom.toLocaleString('pt-br', { style: 'currency', currency: 'BRL'}), // Valor Unitário
-          vlrTotal: vlrTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL'}) // Valor Total
-        };
-        newProducts.push(produto);
-      }
 
-      // Dados para emissão do evento
+        return {
+          cProd,
+          xProd,
+          qCom,
+          vUnCom: vUnCom.toLocaleString('pt-br', { style: 'currency', currency: 'BRL'}),
+          vlrTotal: vlrTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL'})
+        };
+      });
+
       const data = {
         dadosNF,
         dadosEmitente,
@@ -218,20 +177,72 @@ export default {
 
       this.$emit("data-loaded", data);
     },
-    converterData(dataString) {
-      if (!dataString) return '';
-      const partes = dataString.split(/[-T:]+/); // Divide a string com base em separadores comuns
-      const ano = partes[0];
-      const mes = partes[1];
-      const dia = partes[2];
-      // const hora = partes[3];
-      // const minuto = partes[4];
-      // const segundo = partes[5];
-
-      // Formato desejado: DD/MM/YYYY
-      return `${dia}/${mes}/${ano}`;
+    getIdDestTexto(idDest) {
+      switch(idDest) {
+        case '1': return 'Operação Interna';
+        case '2': return 'Operação Interestadual';
+        case '3': return 'Operação com Exterior';
+        default: return 'Desconhecido';
+      }
     },
-  },
+    getTpImpTexto(tpImp) {
+      switch(tpImp) {
+        case '1': return 'DANFE normal, Retrato';
+        case '2': return 'DANFE normal, Paisagem';
+        case '3': return 'DANFE Simplificado';
+        case '4': return 'DANFE NFC-e';
+        case '5': return 'DANFE NFC-e em mensagem eletrônica';
+        default: return 'Desconhecido';
+      }
+    },
+    getTpEmisTexto(xmlDoc) {
+      const tpEmis = xmlDoc.querySelector("tpEmis")?.textContent;
+      switch(tpEmis) {
+        case '1': return 'Emissão normal (não em contingência)';
+        case '2': return 'Contingência FS-IA, com impressão do DANFE em Formulário de Segurança - Impressor Autônomo';
+        case '3': return 'Contingência SCAN (Sistema de Contingência do Ambiente Nacional); *Desativado a partir de 29/04/2016*';
+        case '4': return 'Contingência DPEC (Declaração Prévia da Emissão em Contingência)';
+        case '5': return 'Contingência FS-DA, com impressão do DANFE em Formulário de Segurança - Documento Auxiliar';
+        case '6': return 'Contingência SVC-AN (SEFAZ Virtual de Contingência do AN)';
+        case '7': return 'Contingência SVC-RS (SEFAZ Virtual de Contingência do RS)';
+        case '9': return 'Contingência off-line da NFC-e (as demais opções de contingência são válidas também para a NFC-e)';
+        default: return 'Desconhecido';
+      }
+    },
+    getTpAmbTexto(xmlDoc) {
+      const tpAmb = xmlDoc.querySelector("tpAmb")?.textContent;
+      switch(tpAmb) {
+        case '1': return 'Produção';
+        case '2': return 'Homologação';
+        default: return 'Desconhecido';
+      }
+    },
+    getFinNFeTexto(xmlDoc) {
+      const finNFe = xmlDoc.querySelector("finNFe")?.textContent;
+      switch(finNFe) {
+        case '1': return 'NFe normal';
+        case '2': return 'NFe complementar';
+        case '3': return 'NFe de ajuste';
+        case '4': return 'Devolução de mercadoria';
+        default: return 'Desconhecido';
+      }
+    },
+    getIndFinalTexto(xmlDoc) {
+      const indFinal = xmlDoc.querySelector("indFinal")?.textContent;
+      switch(indFinal) {
+        case '0': return 'Normal';
+        case '1': return 'Consumidor final';
+        default: return 'Desconhecido';
+      }
+    },
+    converterData(dhEmi) {
+      if (!dhEmi) return '';
+      const [data, hora] = dhEmi.split('T');
+      const [ano, mes, dia] = data.split('-');
+      const [horaPart, minutoPart] = hora.split(':');
+      return `${dia}/${mes}/${ano} ${horaPart}:${minutoPart}`;
+    }
+  }
 };
 </script>
 
@@ -241,13 +252,22 @@ export default {
   background-color: #007bff;
   color: white;
   font-size: 1.5rem;
-  cursor: pointer;
-  text-decoration: none;
-  padding: 0.5em 1em;
-  border-radius: 4px;
+  padding: 0.8rem 0.5rem;
 }
 
 .btn:hover {
   background-color: #0056b3;
+}
+
+.btn-remove {
+  border-color: var(--black);
+  background-color: #dc3545;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.8rem 0.5rem;
+}
+
+.btn-remove:hover {
+  background-color: #c82333;
 }
 </style>

@@ -100,10 +100,9 @@ export default {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 2rem;
-  gap: 3rem;
 }
 
-.notafiscal-list .header .botao {
+.notafiscal-list .header  {
   display: flex;
   gap: 1rem;
 }
@@ -113,11 +112,18 @@ export default {
   cursor: pointer;
 }
 
+.notafiscal-list .header .botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
 .notafiscal-list .header .botao .btn {
   border-color: var(--black);
   background-color: #007bff;
   color: white;
   font-size: 1.5rem;
+  padding: 0.8rem 0.5rem;
 }
 
 .notafiscal-list .header .botao .btn:hover {
