@@ -1,37 +1,37 @@
 <template>
-  <fieldset :class="{ ativo: !ocultarFielDadosNF }">
+  <fieldset :class="{ ativo: !isDadosNFOculto }">
     <legend>
       <h3>Dados da Nota Fiscal</h3>
       <hr />
-      <span :class="{ ativo: !ocultarFielDadosNF }">
-        <a @click="ocultarFielsetDadosNF()">
-          <font-awesome-icon :icon="['fas', 'caret-up']" />
+      <span :class="{ ativo: !isDadosNFOculto }">
+        <a @click="toggleDadosNF">
+          <font-awesome-icon :icon="['fas', isDadosNFOculto ? 'caret-down' : 'caret-up']" />
         </a>
       </span>
     </legend>
-    <div v-if="!ocultarFielDadosNF" class="dados">
+    <div v-if="!isDadosNFOculto" class="dados">
       <div class="linha-campo">
         <div class="campo">
           <label for="mod">Modelo</label>
-          <input type="text" id="mod" name="mod" :value="dadosNF.mod" disabled />
+          <input type="text" id="mod" name="mod" :value="dadosNF?.mod || ''" disabled />
         </div>
         <div class="campo">
           <label for="serie">Serie</label>
-          <input type="text" id="serie" name="serie" :value="dadosNF.serie" disabled />
+          <input type="text" id="serie" name="serie" :value="dadosNF?.serie || ''" disabled />
         </div>
         <div class="campo">
           <label for="nNF">Numero</label>
-          <input type="text" id="nNF" name="nNF" :value="dadosNF.nNF" disabled />
+          <input type="text" id="nNF" name="nNF" :value="dadosNF?.nNF || ''" disabled />
         </div>
         <div class="campo">
           <label for="dhEmit">Data de Emissão</label>
-          <input type="text" id="dhEmit" name="dhEmit" :value="dadosNF.dhEmi" disabled />
+          <input type="text" id="dhEmit" name="dhEmit" :value="dadosNF?.dhEmi || ''" disabled />
         </div>
       </div>
       <div class="linha-campo">
         <div class="campo">
           <label for="cMunFG">IBGE</label>
-          <input type="text" id="cMunFG" name="cMunFG" :value="dadosNF.cMunFG" disabled />
+          <input type="text" id="cMunFG" name="cMunFG" :value="dadosNF?.cMunFG || ''" disabled />
         </div>
         <div class="campo">
           <label for="municipio">Município</label>
@@ -45,42 +45,43 @@
       <div class="linha-campo">
         <div class="campo">
           <label for="tpNF">Tipo NF</label>
-          <input type="text" id="tpNF" name="tpNF" :value="dadosNF.tpNFTexto" disabled />
+          <input type="text" id="tpNF" name="tpNF" :value="dadosNF?.tpNFTexto || ''" disabled />
         </div>
         <div class="campo">
           <label for="chNFe">Chave NF-e</label>
-          <input type="text" id="chNFe" name="chNFe" :value="dadosNF.chNFe" disabled />
+          <input type="text" id="chNFe" name="chNFe" :value="dadosNF?.chNFe || ''" disabled />
         </div>
         <div class="campo">
           <label for="idDest">ID Destino</label>
-          <input type="text" id="idDest" name="idDest" :value="dadosNF.idDestTexto" disabled />
+          <input type="text" id="idDest" name="idDest" :value="dadosNF?.idDestTexto || ''" disabled />
         </div>
       </div>
       <div class="linha-campo">
         <div class="campo">
           <label for="tpImp">Tipo Impressão</label>
-          <input type="text" id="tpImp" name="tpImp" :value="dadosNF.tpImpTexto" disabled />
+          <input type="text" id="tpImp" name="tpImp" :value="dadosNF?.tpImpTexto || ''" disabled />
         </div>
         <div class="campo">
           <label for="tpEmis">Tipo Emissão</label>
-          <input type="text" id="tpEmis" name="tpEmis" :value="dadosNF.tpEmisTexto" disabled />
+          <input type="text" id="tpEmis" name="tpEmis" :value="dadosNF?.tpEmisTexto || ''" disabled />
         </div>
         <div class="campo">
           <label for="tpAmb">Tipo Ambiente</label>
-          <input type="text" id="tpAmb" name="tpAmb" :value="dadosNF.tpAmbTexto" disabled />
+          <input type="text" id="tpAmb" name="tpAmb" :value="dadosNF?.tpAmbTexto || ''" disabled />
         </div>
         <div class="campo">
           <label for="indFinal">Finalidade NFe</label>
-          <input type="text" id="indFinal" name="indFinal" :value="dadosNF.finNFeTexto" disabled />
+          <input type="text" id="indFinal" name="indFinal" :value="dadosNF?.finNFeTexto || ''" disabled />
         </div>
         <div class="campo">
-          <label for="indFinal">Indicador de Operação com Consumidor Final</label>
-          <input type="text" id="indFinal" name="indFinal" :value="dadosNF.indFinalTexto" disabled />
+          <label for="indFinalConsumidor">Indicador de Operação com Consumidor Final</label>
+          <input type="text" id="indFinalConsumidor" name="indFinalConsumidor" :value="dadosNF?.indFinalTexto || ''" disabled />
         </div>
       </div>
     </div>
   </fieldset>
 </template>
+
 <script>
 export default {
   name: "ProductTest",
@@ -92,7 +93,7 @@ export default {
   },
   data() {
     return {
-      ocultarFielDadosNF: false,
+      isDadosNFOculto: false,
       municipio: "",
       uf: "",
     };
@@ -123,10 +124,13 @@ export default {
         console.error("Erro ao buscar dados do município:", error);
       }
     },
-    ocultarFielsetDadosNF() {
-      this.ocultarFielDadosNF = !this.ocultarFielDadosNF;
+    toggleDadosNF() {
+      this.isDadosNFOculto = !this.isDadosNFOculto;
     },
   },
 };
 </script>
-<style scoped></style>
+
+<style scoped>
+/* Estilos adicionais */
+</style>

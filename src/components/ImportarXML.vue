@@ -1,42 +1,22 @@
 <template>
-  <a class="btn" @click="triggerFileInput">
-    {{ fileImported ? "Importar Novo XML" : "Importar XML" }}
-  </a>
+  <a class="btn btn-remove" @click="clearData">Limpar Nota</a>
+  <a class="btn" @click="triggerFileInput">Importar XML</a>
   <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" accept=".xml" />
-  <Modal 
-    :visible="showErrorModal" 
-    :title="'Erro'" 
-    :errorMessage="errorMessage" 
-    @close="closeErrorModal"
-  />
-  <!-- Modal para Alertas -->
-  <Modal 
-    :visible="showAlertModal" 
-    :title="'Alerta'" 
-    :alertMessage="alertMessage" 
-    @close="closeAlertModal"
-  />
-  <!-- Botão para remover nota importada -->
-  <button v-if="fileImported" @click="removeImportedNote" class="btn-remove">Remover Nota Importada</button>
+  <Modal v-if="showErrorModal" :visible="showErrorModal" :title="'Erro'" :errorMessage="errorMessage" @close="closeErrorModal" />
 </template>
-
 <script>
 import Modal from "./Modal.vue";
-
 export default {
   name: "ImportarXML",
   components: {
     Modal,
   },
+  emits: ['data-loaded'],
   data() {
     return {
       showErrorModal: false,
-      showAlertModal: false,
       errorMessage: "",
-      alertMessage: "",
-      importedNotes: [],
       cnpj: null,
-      fileImported: false,
     };
   },
   methods: {
@@ -49,55 +29,55 @@ export default {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const xmlText = e.target.result;
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-          const chNFe = xmlDoc.querySelector("chNFe")?.textContent.trim();
-          const cnpjElement = xmlDoc.querySelector("emit > CNPJ")?.textContent.trim();
-
-          if (!chNFe || !cnpjElement) {
-            this.errorMessage = "O arquivo XML não contém dados válidos.";
-            this.showErrorModal = true;
-            return;
+          try {
+            this.processXML(e.target.result);
+          } catch (error) {
+            this.displayError("Erro ao processar o arquivo XML.");
           }
-
-          if (this.cnpj && this.cnpj !== cnpjElement) {
-            this.alertMessage = "O CNPJ do arquivo selecionado não coincide com o CNPJ do arquivo anterior.";
-            this.showAlertModal = true;
-            return;
-          }
-
-          if (this.importedNotes.includes(chNFe)) {
-            this.alertMessage = "Essa nota já foi importada anteriormente.";
-            this.showAlertModal = true;
-            return;
-          }
-
-          this.importedNotes.push(chNFe);
-          this.fileImported = true;
-          this.cnpj = cnpjElement;
-
-          this.processXML(xmlDoc);
         };
         reader.readAsText(file);
       }
     },
-    removeImportedNote() {
-      const lastChNFe = this.importedNotes.pop();
-      if (this.importedNotes.length === 0) {
-        this.fileImported = false;
-        this.cnpj = null;
+    processXML(xmlText) {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      const cnpjElement = xmlDoc.querySelector("emit > CNPJ")?.textContent.trim();
+
+      if (this.cnpj && this.cnpj !== cnpjElement) {
+        this.displayError("O CNPJ do arquivo selecionado não coincide com o CNPJ do arquivo anterior.");
+        return;
       }
-      this.$emit("note-removed", lastChNFe);
+
+      this.cnpj = cnpjElement;
+
+      this.emitProcessedData(xmlDoc);
     },
-    closeErrorModal() {
-      this.showErrorModal = false;
+    emitProcessedData(xmlDoc) {
+      const data = {
+        dadosNF: this.extractDadosNF(xmlDoc),
+        dadosEmitente: this.extractDadosEmitente(xmlDoc),
+        dadosDestinatario: this.extractDadosDestinatario(xmlDoc),
+        produto: this.extractProdutos(xmlDoc),
+      };
+
+      this.$emit("data-loaded", data);
     },
-    closeAlertModal() {
-      this.showAlertModal = false;
+    limparCamposAdicionais() {
+      this.municipio = "";
+      this.uf = "";
     },
-    processXML(xmlDoc) {
+    clearData() {
+      this.cnpj = null;
+      this.$emit("data-loaded", {
+        dadosNF: {},  // Objeto vazio ao invés de null
+        dadosEmitente: {},
+        dadosDestinatario: {},
+        produto: [],
+      });
+      this.limparCamposAdicionais();  // Limpa os campos de município e UF
+    },
+    extractDadosNF(xmlDoc) {
       const tpNF = xmlDoc.querySelector("tpNF")?.textContent;
       const tpNFTexto = tpNF === '0' ? 'Entrada' : 'Saída';
 
@@ -107,7 +87,7 @@ export default {
       const tpImp = xmlDoc.querySelector("tpImp")?.textContent;
       const tpImpTexto = this.getTpImpTexto(tpImp);
 
-      const dadosNF = {
+      return {
         mod: xmlDoc.querySelector("mod")?.textContent || '',
         serie: xmlDoc.querySelector("serie")?.textContent || '',
         nNF: xmlDoc.querySelector("nNF")?.textContent || '',
@@ -122,8 +102,9 @@ export default {
         indFinalTexto: this.getIndFinalTexto(xmlDoc),
         chNFe: xmlDoc.querySelector("chNFe")?.textContent || '',
       };
-
-      const dadosEmitente = {
+    },
+    extractDadosEmitente(xmlDoc) {
+      return {
         CNPJ: xmlDoc.querySelector("emit > CNPJ")?.textContent || '',
         xNome: xmlDoc.querySelector("emit > xNome")?.textContent || '',
         xLgr: xmlDoc.querySelector("emit > enderEmit > xLgr")?.textContent || '',
@@ -135,13 +116,14 @@ export default {
         CEP: xmlDoc.querySelector("emit > enderEmit > CEP")?.textContent || '',
         IE: xmlDoc.querySelector("emit > IE")?.textContent || '',
       };
-
-      const dadosDestinatario = {
+    },
+    extractDadosDestinatario(xmlDoc) {
+      return {
         CNPJ: xmlDoc.querySelector("dest > CNPJ")?.textContent || '',
         xNome: xmlDoc.querySelector("dest > xNome")?.textContent || '',
         xLgr: xmlDoc.querySelector("dest > enderDest > xLgr")?.textContent || '',
         nro: xmlDoc.querySelector("dest > enderDest > nro")?.textContent || '',
-        xBairro1: xmlDoc.querySelector("dest > enderDest > xBairro")?.textContent || '',
+        xBairro: xmlDoc.querySelector("dest > enderDest > xBairro")?.textContent || '',
         cMun: xmlDoc.querySelector("dest > enderDest > cMun")?.textContent || '',
         xMun: xmlDoc.querySelector("dest > enderDest > xMun")?.textContent || '',
         UF: xmlDoc.querySelector("dest > enderDest > UF")?.textContent || '',
@@ -149,9 +131,10 @@ export default {
         indIEDest: xmlDoc.querySelector("dest > indIEDest")?.textContent || '',
         IE: xmlDoc.querySelector("dest > IE")?.textContent || '',
       };
-
+    },
+    extractProdutos(xmlDoc) {
       const items = xmlDoc.getElementsByTagName("det");
-      const newProducts = Array.from(items).map(item => {
+      return Array.from(items).map(item => {
         const cProd = item.querySelector("cProd")?.textContent.trim() || '';
         const xProd = item.querySelector("xProd")?.textContent.trim() || '';
         const qCom = parseFloat(item.querySelector("qCom")?.textContent.trim() || 0);
@@ -167,15 +150,6 @@ export default {
           vlrTotal: vlrTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL'})
         };
       });
-
-      const data = {
-        dadosNF,
-        dadosEmitente,
-        dadosDestinatario,
-        produto: newProducts
-      };
-
-      this.$emit("data-loaded", data);
     },
     getIdDestTexto(idDest) {
       switch(idDest) {
@@ -241,18 +215,24 @@ export default {
       const [ano, mes, dia] = data.split('-');
       const [horaPart, minutoPart] = hora.split(':');
       return `${dia}/${mes}/${ano} ${horaPart}:${minutoPart}`;
-    }
+    },
+    closeErrorModal() {
+      this.showErrorModal = false;
+    },
+    displayError(message) {
+      this.errorMessage = message;
+      this.showErrorModal = true;
+    },
   }
 };
 </script>
-
 <style scoped>
 .btn {
-  border-color: var(--black);
   background-color: #007bff;
   color: white;
   font-size: 1.5rem;
-  padding: 0.8rem 0.5rem;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
 }
 
 .btn:hover {
@@ -260,11 +240,12 @@ export default {
 }
 
 .btn-remove {
-  border-color: var(--black);
   background-color: #dc3545;
   color: white;
-  font-size: 1.5rem;
-  padding: 0.8rem 0.5rem;
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
 }
 
 .btn-remove:hover {

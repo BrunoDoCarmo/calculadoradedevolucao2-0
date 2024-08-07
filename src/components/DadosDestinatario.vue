@@ -16,7 +16,7 @@
           <input type="text" id="destCNPJ" name="destCNPJ" :value="dadosDestinatario.CNPJ" disabled />
         </div>
         <div class="campo">
-          <label for="destIE">CNPJ</label>
+          <label for="destIE">Inscrição Estadual</label>
           <input type="text" id="destIE" name="destIE" :value="dadosDestinatario.IE" disabled />
         </div>
         <div class="campo">

@@ -9,31 +9,13 @@
         <a href="" class="btn">Buscar no banco de dados</a>
       </div>
     </div>
-    <div v-if="!dataLoaded" class="alert alert-red">
-      Nenhuma Nota Fiscal Eletrônica (NF-e) selecionada.
-    </div>
-    <div v-else>
-      <div class="alert alert-green">
-        Nota Fiscal Eletrônica (NF-e) selecionada com sucesso.
-      </div>
-      <Abas :abas="tabs" v-model:activeTab="activeTab" />
-      <div class="container-field">
-        <div v-if="activeTab === 0">
-          <DadosNota :dadosNF="dadosNF" />
-        </div>
-        <div v-if="activeTab === 1">
-          <DadosEmitente :dadosEmitente="dadosEmitente" />
-        </div>
-        <div v-if="activeTab === 2">
-          <DadosDestinatario :dadosDestinatario="dadosDestinatario" />
-        </div>
-        <div v-if="activeTab === 3">
-          <ProdutosNota :produto="produto" />
-        </div>
-        <div v-if="activeTab === 4">
-          <ProdutosSelecionados :produto="produto" />
-        </div>
-      </div>
+    <Abas :abas="tabs" v-model:activeTab="activeTab" />
+    <div class="container-field">
+      <DadosNota v-if="activeTab === 0" :dadosNF="dadosNF" />
+      <DadosEmitente v-if="activeTab === 1" :dadosEmitente="dadosEmitente" />
+      <DadosDestinatario v-if="activeTab === 2" :dadosDestinatario="dadosDestinatario" />
+      <ProdutosNota v-if="activeTab === 3" :produto="produto" />
+      <ProdutosSelecionados v-if="activeTab === 4" :produto="produto" />
     </div>
   </div>
 </template>
@@ -64,7 +46,6 @@ export default {
       dadosNF: {},
       dadosEmitente: {},
       dadosDestinatario: {},
-      dataLoaded: false,
       tabs: [
         "Dados da Nota Fiscal",
         "Dados do Emitente",
@@ -76,26 +57,21 @@ export default {
     };
   },
   methods: {
-    handleDataLoaded({ produto, dadosNF, dadosEmitente, dadosDestinatario }) {
-      this.produto = produto;
-      this.dadosNF = dadosNF;
-      this.dadosEmitente = dadosEmitente;
-      this.dadosDestinatario = dadosDestinatario;
-      this.dataLoaded = true;
+    handleDataLoaded(data) {
+      this.produto = data.produto;
+      this.dadosNF = data.dadosNF;
+      this.dadosEmitente = data.dadosEmitente;
+      this.dadosDestinatario = data.dadosDestinatario;
     },
     goToNotaFiscal() {
-      this.$router.push({ name: "NotaFiscal" }); // Redireciona para a rota 'NotaFiscal'
+      this.$router.push({ name: "NotaFiscal" });
     },
-  },
-  created() {
-    if (this.dados) {
-      this.handleDataLoaded(this.dados);
-    }
   },
 };
 </script>
 
 <style scoped>
+/* Estilos personalizados para a NotaFiscalDevolucao.vue */
 .notafiscal-list .header {
   display: flex;
   justify-content: space-between;
@@ -118,6 +94,7 @@ export default {
   justify-content: center;
   gap: 1rem;
 }
+
 .notafiscal-list .header .botao .btn {
   border-color: var(--black);
   background-color: #007bff;
@@ -128,22 +105,5 @@ export default {
 
 .notafiscal-list .header .botao .btn:hover {
   background-color: #0056b3;
-}
-
-.alert {
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 1.6rem;
-  text-align: center;
-}
-
-.alert-red {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.alert-green {
-  background-color: #d4edda;
-  color: #155724;
 }
 </style>

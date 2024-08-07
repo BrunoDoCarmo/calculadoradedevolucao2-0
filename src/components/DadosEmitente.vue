@@ -16,7 +16,7 @@
           <input type="text" id="emitCNPJ" name="emitCNPJ" :value="dadosEmitente.CNPJ" disabled />
         </div>
         <div class="campo">
-          <label for="emitIE">I.E</label>
+          <label for="emitIE">Inscrição Estadual</label>
           <input type="text" id="emitIE" name="emitIE" :value="dadosEmitente.IE" disabled />
         </div>
         <div class="campo">
