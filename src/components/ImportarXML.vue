@@ -1,5 +1,4 @@
 <template>
-  <a class="btn btn-remove" @click="clearData">Limpar Nota</a>
   <a class="btn" @click="triggerFileInput">Importar XML</a>
   <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" accept=".xml" />
   <Modal v-if="showErrorModal" :visible="showErrorModal" :title="'Erro'" :errorMessage="errorMessage" @close="closeErrorModal" />
@@ -62,20 +61,6 @@ export default {
       };
 
       this.$emit("data-loaded", data);
-    },
-    limparCamposAdicionais() {
-      this.municipio = "";
-      this.uf = "";
-    },
-    clearData() {
-      this.cnpj = null;
-      this.$emit("data-loaded", {
-        dadosNF: {},  // Objeto vazio ao invés de null
-        dadosEmitente: {},
-        dadosDestinatario: {},
-        produto: [],
-      });
-      this.limparCamposAdicionais();  // Limpa os campos de município e UF
     },
     extractDadosNF(xmlDoc) {
       const tpNF = xmlDoc.querySelector("tpNF")?.textContent;
@@ -237,18 +222,5 @@ export default {
 
 .btn:hover {
   background-color: #0056b3;
-}
-
-.btn-remove {
-  background-color: #dc3545;
-  color: white;
-  font-size: 1.2rem;
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  cursor: pointer;
-}
-
-.btn-remove:hover {
-  background-color: #c82333;
 }
 </style>

@@ -6,6 +6,7 @@
       </button>
       <div class="botao">
         <ImportarXML @data-loaded="handleDataLoaded" />
+        <a class="btn btn-remove" @click="clearData">Limpar Nota</a>
         <a href="" class="btn">Buscar no banco de dados</a>
       </div>
     </div>
@@ -66,6 +67,18 @@ export default {
     goToNotaFiscal() {
       this.$router.push({ name: "NotaFiscal" });
     },
+    clearData() {
+      // Limpa todos os dados da nota fiscal
+      this.dadosNF = {};  
+      this.dadosEmitente = {};
+      this.dadosDestinatario = {};
+      this.produto = [];
+      
+      // Limpa os campos de município e UF dentro do componente DadosNota
+      if (this.$refs.dadosNota) {
+        this.$refs.dadosNota.limparMunicipioUF();
+      }
+    },
   },
 };
 </script>
@@ -105,5 +118,13 @@ export default {
 
 .notafiscal-list .header .botao .btn:hover {
   background-color: #0056b3;
+}
+
+.notafiscal-list .header .botao .btn-remove {
+  background-color: #dc3545;
+}
+
+.notafiscal-list .header .botao .btn-remove:hover {
+  background-color: #c82333;
 }
 </style>
