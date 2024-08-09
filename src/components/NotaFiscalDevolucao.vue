@@ -12,11 +12,14 @@
     </div>
     <Abas :abas="tabs" v-model:activeTab="activeTab" />
     <div class="container-field">
-      <DadosNota v-if="activeTab === 0" :dadosNF="dadosNF" />
-      <DadosEmitente v-if="activeTab === 1" :dadosEmitente="dadosEmitente" />
-      <DadosDestinatario v-if="activeTab === 2" :dadosDestinatario="dadosDestinatario" />
-      <ProdutosNota v-if="activeTab === 3" :produto="produto" />
-      <ProdutosSelecionados v-if="activeTab === 4" :produto="produto" />
+      <component 
+        ref="dadosNota" 
+        :is="activeComponent" 
+        :dadosNF="dadosNF" 
+        :dadosEmitente="dadosEmitente" 
+        :dadosDestinatario="dadosDestinatario"
+        :produto="produto" 
+      />
     </div>
   </div>
 </template>
@@ -56,6 +59,18 @@ export default {
       ],
       activeTab: 0,
     };
+  },
+  computed: {
+    activeComponent() {
+      const components = [
+        "DadosNota",
+        "DadosEmitente",
+        "DadosDestinatario",
+        "ProdutosNota",
+        "ProdutosSelecionados"
+      ];
+      return components[this.activeTab];
+    }
   },
   methods: {
     handleDataLoaded(data) {
