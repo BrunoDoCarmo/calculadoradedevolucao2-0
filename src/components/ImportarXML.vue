@@ -196,10 +196,8 @@ export default {
     },
     converterData(dhEmi) {
       if (!dhEmi) return '';
-      const [data, hora] = dhEmi.split('T');
-      const [ano, mes, dia] = data.split('-');
-      const [horaPart, minutoPart] = hora.split(':');
-      return `${dia}/${mes}/${ano} ${horaPart}:${minutoPart}`;
+      const [ano, mes, dia] = dhEmi.split('-');
+      return `${dia}/${mes}/${ano}`;
     },
     closeErrorModal() {
       this.showErrorModal = false;

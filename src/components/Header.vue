@@ -5,18 +5,24 @@
         <font-awesome-icon class="icon" :icon="['fas', 'newspaper']" />
         EmitPro
       </router-link>
-      <span>Versão: 2.0.0</span>
+      <span>Versão: {{ version }}</span>
       <Navbar />
     </header>
   </div>
 </template>
 <script>
+import packageJson from '../../package.json';
 import Navbar from "./Navbar.vue";
 export default {
   name: "HeaDer",
   components: {
     Navbar,
   },
+  data() {
+    return {
+      version: packageJson.version
+    };
+  }
 };
 </script>
 <style scoped>
