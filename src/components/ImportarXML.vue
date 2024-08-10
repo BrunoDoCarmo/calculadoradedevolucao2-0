@@ -195,8 +195,11 @@ export default {
       }
     },
     converterData(dhEmi) {
-      if (!dhEmi) return '';
-      const [ano, mes, dia] = dhEmi.split('-');
+      if (!dhEmi) return '';      
+      const [data] = dhEmi.split('T');
+      const [ano, mes, dia] = data.split('-');
+      // const [horaPart, minutoPart] = hora.split(':');
+      // return `${dia}/${mes}/${ano} ${horaPart}:${minutoPart}`;
       return `${dia}/${mes}/${ano}`;
     },
     closeErrorModal() {

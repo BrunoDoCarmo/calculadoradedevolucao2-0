@@ -40,7 +40,7 @@
       <tbody>
         <tr v-for="(nota, index) in notasFiscais" :key="index">
           <td>
-            <button @click="confirmDelete(nota.id)">
+            <button class="btn" @click="confirmDelete(nota.id)">
               <font-awesome-icon :icon="['fas', 'trash']" />
             </button>
           </td>
@@ -208,5 +208,47 @@ export default {
 
 .notafiscal-list .header .botao .btn-remove:hover {
   background-color: #c82333;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 1.2rem;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+thead {
+  background-color: #007bff;
+  color: white;
+  text-align: left;
+}
+
+th, td {
+  padding: 1.2rem 1.5rem;
+  border: .1rem solid #000;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+td .btn {
+  background-color: #dc3545;
+  color: white;
+  font-size: 1rem;
+}
+
+td .btn:hover {
+  background-color: #c82333;
+}
+
+td .btn:focus {
+  outline: none;
 }
 </style>
