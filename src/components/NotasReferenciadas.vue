@@ -76,6 +76,8 @@ th, td {
   text-transform: uppercase;
   padding: 1.2rem 1.5rem;
   border: .1rem solid #000;
+  height: 3.5rem;
+  padding: 0.5rem;
 }
 
 tbody tr:nth-child(even) {
@@ -90,6 +92,7 @@ td .btn {
   background-color: #dc3545;
   color: white;
   font-size: 1.5rem;
+  padding: 0.25rem 1.5rem;
 }
 
 td .btn:hover {
