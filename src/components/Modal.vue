@@ -29,8 +29,16 @@ export default {
       type: String,
       default: "Modal Title",
     },
-    errorMessage: String,
-    alertMessage: String,
+    errorMessage: {
+      type: String,
+      required: false, // Mude para false se você quiser que seja opcional
+      default: '' // Você pode definir um valor padrão
+    },
+    alertMessage: {
+      type: String,
+      required: false, // Mude para false se você quiser que seja opcional
+      default: '' // Você pode definir um valor padrão
+    }
   },
   data() {
     return {
@@ -60,10 +68,11 @@ export default {
 
 .modal {
   background: white;
-  padding: 2rem; /* Aumenta o padding para uma margem interna maior */
+  padding: 1rem 2rem; /* Aumenta o padding para uma margem interna maior */
   border-radius: 0.5rem; /* Bordas arredondadas */
   min-width: 30%; /* Ajusta o tamanho mínimo do modal */
   max-width: 50%; /* Limita o tamanho máximo do modal */
+  max-height: 50%; /* Limita o tamanho máximo do modal */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Adiciona uma sombra ao redor do modal */
 }
 
@@ -71,11 +80,11 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
 }
 
 .modal-header h3 {
-  margin: 0;
+  text-align: center;
+  width: 100%;
   font-size: 2.5rem;
   color: #333; /* Cor do título */
 }
@@ -83,7 +92,7 @@ export default {
 .close-button {
   background: none;
   border: none;
-  font-size: 3rem;
+  font-size: 4rem;
   color: #333; /* Cor do botão fechar */
   cursor: pointer;
 }
@@ -91,35 +100,15 @@ export default {
 .modal-body {
   font-size: 1.6rem;
   color: #555; /* Cor do texto do corpo */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1.5rem;
   gap: 1rem; /* Espaço entre os botões */
-}
-
-.modal-actions button {
-  padding: 0.8rem 1.5rem;
-  font-size: 1.5rem;
-  border: none;
-  border-radius: 0.3rem;
-  cursor: pointer;
-}
-
-.modal-actions button:first-of-type {
-  background-color: #dc3545; /* Cor do botão de deletar */
-  color: white;
-}
-
-.modal-actions button:last-of-type {
-  background-color: #6c757d; /* Cor do botão de cancelar */
-  color: white;
-}
-
-.modal-actions button:hover {
-  opacity: 0.9; /* Efeito de opacidade no hover */
 }
 
 .alert {

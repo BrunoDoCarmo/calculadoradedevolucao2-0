@@ -6,7 +6,7 @@
       </button>
       <div class="botao">
         <ImportarXML @data-loaded="handleDataLoaded" />
-        <a class="btn btn-remove" @click="openModal">Limpar Nota</a>
+        <a class="btn btn-remove" @click="clearData">Limpar Nota</a>
         <a href="" class="btn">Buscar no banco de dados</a>
       </div>
     </div>
@@ -15,61 +15,28 @@
       <component
         ref="activeComponentRef"
         :is="activeComponent"
-        :dadosNF="dadosNF"
         :dadosEmitente="dadosEmitente"
         :dadosDestinatario="dadosDestinatario"
-        :produto="produto"
+        :notasReferenciadas="notasReferenciadas"
+        :produtosNota="produtosNota"
       />
     </div>
   </div>
-  <Modal
-    v-if="showModal"
-    :visible="showModal"
-    title="Selecione a Nota Fiscal para deletar"
-    @close="closeModal"
-  >
-    <table>
-      <thead>
-        <tr>
-          <th>Ação</th>
-          <th>Número N.F.</th>
-          <th>Chave de Acesso</th>
-          <th>Data Emissão</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(nota, index) in notasFiscais" :key="index">
-          <td>
-            <button class="btn" @click="confirmDelete(nota.id)">
-              <font-awesome-icon :icon="['fas', 'trash']" />
-            </button>
-          </td>
-          <td>{{ nota.numero }}</td>
-          <td>{{ nota.chaveAcesso }}</td>
-          <td>{{ nota.data }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="modal-actions">
-      <button @click="closeModal">Cancelar</button>
-    </div>
-  </Modal>
 </template>
 
 <script>
 import ImportarXML from "./ImportarXML.vue";
-import DadosNota from "./DadosNota.vue";
 import DadosEmitente from "./DadosEmitente.vue";
 import DadosDestinatario from "./DadosDestinatario.vue";
-import Abas from "./Abas.vue";
+import NotasReferenciadas from "./NotasReferenciadas.vue";
 import ProdutosNota from "./ProdutosNota.vue";
 import ProdutosSelecionados from "./ProdutosSelecionados.vue";
+import Abas from "./Abas.vue";
 import Modal from "./Modal.vue";
 
 export default {
   name: "NotaFiscalDevolucao",
   props: {
-    notas: Array,
     dados: {
       type: Object,
       default: () => ({}),
@@ -77,39 +44,39 @@ export default {
   },
   components: {
     ImportarXML,
-    DadosNota,
     DadosEmitente,
     DadosDestinatario,
-    Abas,
+    NotasReferenciadas,
     ProdutosNota,
     ProdutosSelecionados,
+    Abas,
     Modal,
   },
   data() {
     return {
       showModal: false, // Controla a exibição do modal
       selectedNota: null,
-      produto: [],
-      dadosNF: {},
+      produtosNota: [],
       dadosEmitente: {},
       dadosDestinatario: {},
+      notasReferenciadas: {},
       tabs: [
-        "Dados da Nota Fiscal",
         "Dados do Emitente",
         "Dados do Destinatário",
+        "Notas Referenciadas",
         "Produtos da Nota",
         "Produtos Selecionados",
       ],
       activeTab: 0,
-      notasFiscais: [],
+      notasFiscais: []
     };
   },
   computed: {
     activeComponent() {
       const components = [
-        "DadosNota",
         "DadosEmitente",
         "DadosDestinatario",
+        "NotasReferenciadas",
         "ProdutosNota",
         "ProdutosSelecionados",
       ];
@@ -117,41 +84,32 @@ export default {
     },
   },
   methods: {
-    openModal() {
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-    },
-    confirmDelete(notaId) {
-      // Remove the selected nota from the list
-      this.notasFiscais = this.notasFiscais.filter(nota => nota.id !== notaId);
-      // Clear data after deletion
-      this.clearData();
-      this.closeModal();
-    },
     handleDataLoaded(data) {
-      this.produto = data.produto;
-      this.dadosNF = data.dadosNF;
+      this.produtosNota = [...this.produtosNota, ...data.produtosNota];
       this.dadosEmitente = data.dadosEmitente;
       this.dadosDestinatario = data.dadosDestinatario;
 
-      this.notasFiscais.push ({
+      // Garantir que notasReferenciadas é um array
+      this.notasReferenciadas = Array.isArray(data.notasReferenciadas)
+        ? data.notasReferenciadas
+        : [data.notasReferenciadas];
+
+      this.notasFiscais = this.notasReferenciadas.map(nota => ({
         id: this.notasFiscais.length + 1,
-        numero: data.dadosNF.nNF,
-        chaveAcesso: data.dadosNF.chNFe,
-        data: data.dadosNF.dhEmit
-      })
+        numero: nota.nNF,
+        chaveAcesso: nota.chNFe,
+        data: nota.dhEmi,
+      }));
     },
     goToNotaFiscal() {
       this.$router.push({ name: "NotaFiscal" });
     },
     clearData() {
       // Limpa todos os dados da nota fiscal
-      this.dadosNF = {};
       this.dadosEmitente = {};
       this.dadosDestinatario = {};
-      this.produto = [];
+      this.notasReferenciadas = {};
+      this.produtosNota = [];
 
       const activeComponentRef = this.$refs.activeComponentRef;
       if (
@@ -208,47 +166,5 @@ export default {
 
 .notafiscal-list .header .botao .btn-remove:hover {
   background-color: #c82333;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 1.2rem;
-  font-family: 'Arial', sans-serif;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-}
-
-thead {
-  background-color: #007bff;
-  color: white;
-  text-align: left;
-}
-
-th, td {
-  padding: 1.2rem 1.5rem;
-  border: .1rem solid #000;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-td .btn {
-  background-color: #dc3545;
-  color: white;
-  font-size: 1rem;
-}
-
-td .btn:hover {
-  background-color: #c82333;
-}
-
-td .btn:focus {
-  outline: none;
 }
 </style>

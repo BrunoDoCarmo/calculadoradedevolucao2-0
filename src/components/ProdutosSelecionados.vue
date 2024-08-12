@@ -5,7 +5,6 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Ação</th>
                         <th>Cod. Prod.</th>
                         <th>Nome Produto</th>
                         <th>QTD</th>
@@ -14,13 +13,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(product, index) in produto" :key="index">
-                        <td><input type="checkbox" name="" id=""></td>
-                        <td>{{ product.cProd }}</td>
-                        <td>{{ product.xProd }}</td>
-                        <td>{{ product.qCom }}</td>
-                        <td>{{ product.vUnCom }}</td>
-                        <td>{{ product.vlrTotal }}</td>
+                    <tr v-for="(products, index) in product" :key="index">
+                        <td>{{ products.cProd }}</td>
+                        <td>{{ products.xProd }}</td>
+                        <td>{{ products.qCom }}</td>
+                        <td>{{ products.vUnCom }}</td>
+                        <td>{{ products.vlrTotal }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -37,12 +35,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(product, index) in produto" :key="index">
-                        <td>{{ product.cProd }}</td>
-                        <td>{{ product.xProd }}</td>
-                        <td>{{ product.qCom }}</td>
-                        <td>{{ product.vUnCom }}</td>
-                        <td>{{ product.vlrTotal }}</td>
+                    <tr v-for="(products, index) in product" :key="index">
+                        <td>{{ products.cProd }}</td>
+                        <td>{{ products.xProd }}</td>
+                        <td>{{ products.qCom }}</td>
+                        <td>{{ products.vUnCom }}</td>
+                        <td>{{ products.vlrTotal }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -52,8 +50,8 @@
 <script>
 import Abas from './Abas.vue';
 export default {
-    name: 'ProdutoS',
-    props: ['produto'],
+    name: 'ProdutosSelecionados',
+    props: ['product'],
     data() {
         return {
             activeTab: 0,
