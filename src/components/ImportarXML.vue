@@ -1,211 +1,99 @@
 <template>
-  <a class="btn" @click="triggerFileInput">Importar XML</a>
-  <input
-    type="file"
-    ref="fileInput"
-    @change="handleFileUpload"
-    style="display: none"
-    accept=".xml"
-  />
-  <Modal
-    v-if="showErrorModal"
-    :visible="showErrorModal"
-    :title="'Erro'"
-    :errorMessage="errorMessage"
-    @close="closeModal"
-  />
-  <Modal
-    v-if="showAlertModal"
-    :visible="showAlertModal"
-    :title="'Alerta'"
-    :alertMessage="alertMessage"
-    @close="closeModal"
-  />
+  <div>
+    <input type="file" @change="onFileChange" accept=".xml" multiple />
+    <button @click="limparLocalStorage">LIMPAR LOCALSTORAGE</button>
+  </div>
 </template>
 
 <script>
-import Modal from "./Modal.vue";
-
 export default {
   name: "ImportarXML",
-  components: {
-    Modal,
-  },
-  emits: ["data-loaded"],
-  data() {
-    return {
-      showErrorModal: false,
-      showAlertModal: false,
-      errorMessage: "",
-      alertMessage: "",
-      cnpj: null,
-      importedKeys: [],
-    };
-  },
   methods: {
-    triggerFileInput() {
-      this.$refs.fileInput.click();
-    },
-    handleFileUpload(event) {
-      const file = event.target.files[0];
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            this.processXML(e.target.result);
-          } catch (error) {
-            this.displayMessage("Erro ao processar o arquivo XML.");
-            console.error(error);
-          }
-        };
-        reader.readAsText(file);
+    onFileChange(event) {
+      const files = event.target.files;
+      if (files.length) {
+        for (let i = 0; i < files.length; i++) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const xmlContent = e.target.result;
+            this.processXML(xmlContent);
+          };
+          reader.readAsText(files[i]);
+        }
       }
     },
-    processXML(xmlText) {
+    processXML(xmlContent) {
       const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      const xmlDoc = parser.parseFromString(xmlContent, "application/xml");
 
-      const cnpjElement = xmlDoc
-        .querySelector("emit > CNPJ")
-        ?.textContent.trim();
-      const chNFe = xmlDoc.querySelector("chNFe")?.textContent.trim();
-
-      // Verifica se a chave da nota já foi importada
-      if (this.importedKeys.includes(chNFe)) {
-        this.displayMessage("Essa nota fiscal já foi importada.", false);
+      const nfe = xmlDoc.getElementsByTagName("NFe")[0];
+      if (!nfe) {
+        console.error("Não foi possível encontrar a tag <NFe>");
         return;
       }
 
-      if (this.cnpj && this.cnpj !== cnpjElement) {
-        this.displayMessage(
-          "O CNPJ do arquivo selecionado não coincide com o CNPJ do arquivo anterior.",
-          false
-        );
+      const emitente = nfe.getElementsByTagName("emit")[0];
+      const destinatario = nfe.getElementsByTagName("dest")[0];
+      const protNFe =  nfe.getElementsByTagName("protNFe")[0];
+      const produtos = nfe.getElementsByTagName("det");
+
+      const notaFiscal = {
+        nNF: nfe.getElementsByTagName("nNF")[0]?.textContent || "N/A",
+        dhEmi: nfe.getElementsByTagName("dhEmi")[0]?.textContent || "N/A",
+        emitente: {
+          CNPJ: emitente?.getElementsByTagName("CNPJ")[0]?.textContent || "N/A",
+          xNome: emitente?.getElementsByTagName("xNome")[0]?.textContent || "N/A",
+        },
+        destinatario: {
+          CNPJ: destinatario?.getElementsByTagName("CNPJ")[0]?.textContent || "N/A",
+          xNome: destinatario?.getElementsByTagName("xNome")[0]?.textContent || "N/A",
+        },
+        protNFe: protNFe ? {
+          chNFe: protNFe.getElementsByTagName("chNFe")[0]?.textContent.trim() || "N/A",
+        } : { chNFe: "N/A" },
+        produtos: [],
+      };
+
+      for (let i = 0; i < produtos.length; i++) {
+        const prod = produtos[i].getElementsByTagName("prod")[0];
+        if (prod) {
+          notaFiscal.produtos.push({
+            cProd: prod.getElementsByTagName("cProd")[0]?.textContent || "N/A",
+            xProd: prod.getElementsByTagName("xProd")[0]?.textContent || "N/A",
+            qCom: prod.getElementsByTagName("qCom")[0]?.textContent || "N/A",
+            vUnCom: prod.getElementsByTagName("vUnCom")[0]?.textContent || "N/A",
+            vlrTotal: prod.getElementsByTagName("vProd")[0]?.textContent || "N/A",
+          });
+        }
+      }
+
+      // Verifica se a nota fiscal já está no localStorage
+      if (this.isNotaFiscalDuplicada(notaFiscal)) {
+        console.log(`Nota fiscal ${notaFiscal.nNF} já está importada.`);
         return;
       }
 
-      this.cnpj = cnpjElement;
+      // Armazena a nota fiscal no localStorage
+      this.salvarNotaLocalStorage(notaFiscal);
 
-      // Armazena a chave da nota importada
-      this.importedKeys.push(chNFe);
-
-      this.emitProcessedData(xmlDoc);
+      // Emite a nova nota fiscal processada
+      this.$emit("nota-importada", notaFiscal);
     },
-    emitProcessedData(xmlDoc) {
-      const data = {
-        dadosEmitente: this.extractDadosEmitente(xmlDoc),
-        dadosDestinatario: this.extractDadosDestinatario(xmlDoc),
-        notasReferenciadas: this.extractNotasReferenciadas(xmlDoc),
-        produtosNota: this.extractProdutos(xmlDoc),
-      };
-
-      this.$emit("data-loaded", data);
+    isNotaFiscalDuplicada(notaFiscal) {
+      const notasArmazenadas = JSON.parse(localStorage.getItem("notasFiscais")) || [];
+      return notasArmazenadas.some(nota => nota.nNF === notaFiscal.nNF);
     },
-    extractNotasReferenciadas(xmlDoc) {
-      const notasReferenciadas = [];
-      const refElements = xmlDoc.querySelectorAll("chNFe"); // Certifique-se de que 'refNFe' é o nome correto da tag de referência
-
-      refElements.forEach((ref) => {
-        const chNFe = ref.textContent.trim();
-        const notaReferenciada = {
-          chNFe: chNFe,
-          nNF: xmlDoc.querySelector(`nNF`)?.textContent || "",
-          dhEmi: this.converterData(
-            xmlDoc.querySelector(`dhEmi`)?.textContent || ""
-          ),
-        };
-
-        notasReferenciadas.push(notaReferenciada);
-      });
-
-      return notasReferenciadas;
+    salvarNotaLocalStorage(notaFiscal) {
+      const notasArmazenadas = JSON.parse(localStorage.getItem("notasFiscais")) || [];
+      notasArmazenadas.push(notaFiscal);
+      localStorage.setItem("notasFiscais", JSON.stringify(notasArmazenadas));
     },
-    extractDadosEmitente(xmlDoc) {
-      return {
-        CNPJ: xmlDoc.querySelector("emit > CNPJ")?.textContent || "",
-        xNome: xmlDoc.querySelector("emit > xNome")?.textContent || "",
-        xLgr:
-          xmlDoc.querySelector("emit > enderEmit > xLgr")?.textContent || "",
-        nro: xmlDoc.querySelector("emit > enderEmit > nro")?.textContent || "",
-        xBairro:
-          xmlDoc.querySelector("emit > enderEmit > xBairro")?.textContent || "",
-        cMun:
-          xmlDoc.querySelector("emit > enderEmit > cMun")?.textContent || "",
-        xMun:
-          xmlDoc.querySelector("emit > enderEmit > xMun")?.textContent || "",
-        UF: xmlDoc.querySelector("emit > enderEmit > UF")?.textContent || "",
-        CEP: xmlDoc.querySelector("emit > enderEmit > CEP")?.textContent || "",
-        IE: xmlDoc.querySelector("emit > IE")?.textContent || "",
-      };
-    },
-    extractDadosDestinatario(xmlDoc) {
-      return {
-        CNPJ: xmlDoc.querySelector("dest > CNPJ")?.textContent || "",
-        xNome: xmlDoc.querySelector("dest > xNome")?.textContent || "",
-        xLgr:
-          xmlDoc.querySelector("dest > enderDest > xLgr")?.textContent || "",
-        nro: xmlDoc.querySelector("dest > enderDest > nro")?.textContent || "",
-        xBairro:
-          xmlDoc.querySelector("dest > enderDest > xBairro")?.textContent || "",
-        cMun:
-          xmlDoc.querySelector("dest > enderDest > cMun")?.textContent || "",
-        xMun:
-          xmlDoc.querySelector("dest > enderDest > xMun")?.textContent || "",
-        UF: xmlDoc.querySelector("dest > enderDest > UF")?.textContent || "",
-        CEP: xmlDoc.querySelector("dest > enderDest > CEP")?.textContent || "",
-        indIEDest: xmlDoc.querySelector("dest > indIEDest")?.textContent || "",
-        IE: xmlDoc.querySelector("dest > IE")?.textContent || "",
-      };
-    },
-    extractProdutos(xmlDoc) {
-      const items = xmlDoc.getElementsByTagName("det");
-      return Array.from(items).map((item) => {
-        const cProd = item.querySelector("cProd")?.textContent.trim() || "";
-        const xProd = item.querySelector("xProd")?.textContent.trim() || "";
-        const qCom = parseFloat(
-          item.querySelector("qCom")?.textContent.trim() || 0
-        );
-        const vUnCom = parseFloat(
-          item.querySelector("vUnCom")?.textContent.trim() || 0
-        );
-
-        const vlrTotal = qCom * vUnCom;
-
-        return {
-          cProd,
-          xProd,
-          qCom,
-          vUnCom: vUnCom.toLocaleString("pt-br", {
-            style: "currency",
-            currency: "BRL",
-          }),
-          vlrTotal: vlrTotal.toLocaleString("pt-br", {
-            style: "currency",
-            currency: "BRL",
-          }),
-        };
-      });
-    },
-    converterData(dhEmi) {
-      if (!dhEmi) return "";
-      const [data] = dhEmi.split("T");
-      const [ano, mes, dia] = data.split("-");
-      return `${dia}/${mes}/${ano}`;
-    },
-    closeModal() {
-      this.showErrorModal = false;
-      this.showAlertModal = false;
-    },
-    displayMessage(message, isError = true) {
-      if (isError) {
-        this.errorMessage = message;
-        this.showErrorModal = true;
-      } else {
-        this.alertMessage = message;
-        this.showAlertModal = true;
-      }
-    },
+    limparLocalStorage() {
+      localStorage.removeItem("notasFiscais");
+      this.$emit("limpar-notas");
+      // Recarrega a página para limpar o estado atual
+      location.reload();
+    }
   },
 };
 </script>
