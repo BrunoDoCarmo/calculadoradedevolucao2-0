@@ -1,95 +1,158 @@
 <template>
-  <div>
-    <!-- Componente de importação de XML -->
-    <ImportarXML @nota-importada="adicionarNota" />
-
-    <!-- Componente de abas que mostra as notas -->
-    <Abas
-      :abas="tabs"
-      v-model:activeTab="activeTab"
-    />
-
-    <div class="teste">
-      <!-- Mostra os produtos da nota fiscal ativa -->
-      <div v-if="notas.length">
-        <div v-for="(nota, index) in notas" :key="index" v-show="activeTab === index">
-          <table>
-            <thead>
-              <tr>
-                <th>Cod. Prod.</th>
-                <th>Nome Produto</th>
-                <th>QTD</th>
-                <th>VLR Unit.</th>
-                <th>VLR Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(produto, prodIndex) in nota.produtos" :key="prodIndex">
-                <td>{{ produto.cProd }}</td>
-                <td>{{ produto.xProd }}</td>
-                <td>{{ produto.qCom }}</td>
-                <td>{{ produto.vUnCom }}</td>
-                <td>{{ produto.vlrTotal }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <div class="notafiscal-list">
+    <div class="header">
+      <button @click="goToNotaFiscal">
+        <font-awesome-icon class="icon" :icon="['fas', 'chevron-left']" />
+      </button>
+      <div class="botao">
+        <ImportarXML @nota-importada="atualizarEmitente" @limpar-notas="clearData" />
+        <a class="btn btn-remove" @click="clearData">Limpar Nota</a>
+        <a href="" class="btn">Buscar no banco de dados</a>
       </div>
+    </div>
+    <p>Quantidade de Notas Fiscais Importadas: {{ totalNotas }}</p>
+    <Abas :abas="tabs" v-model:activeTab="activeTab" />
+    <div class="container-field">
+      <component
+        ref="activeComponentRef"
+        :is="activeComponent"
+        :dadosEmitente="dadosEmitente"
+        :dadosDestinatario="dadosDestinatario"
+        :notasReferenciadas="notasReferenciadas"
+        :produtosNota="produtosNota"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import ImportarXML from './ImportarXML.vue';
-import Abas from './Abas.vue';
+import ImportarXML from "./ImportarXML.vue";
+import DadosEmitente from "./DadosEmitente.vue";
+// import DadosDestinatario from "./DadosDestinatario.vue";
+// import NotasReferenciadas from "./NotasReferenciadas.vue";
+import ProdutosNota from "./ProdutosNota.vue";
+// import ProdutosSelecionados from "./ProdutosSelecionados.vue";
+import Abas from "./Abas.vue";
+import Modal from "./Modal.vue";
 
 export default {
+  name: "NotaFiscalDevolucao",
   components: {
     ImportarXML,
+    DadosEmitente,
+    // DadosDestinatario,
+    // NotasReferenciadas,
+    ProdutosNota,
+    // ProdutosSelecionados,
     Abas,
+    Modal,
   },
   data() {
     return {
+      showModal: false,
+      selectedNota: null,
+      produtosNota: [],
+      dadosEmitente: {},
+      dadosDestinatario: {},
+      notasReferenciadas: {},
+      tabs: [
+        "Dados do Emitente",
+        "Dados do Destinatário",
+        "Notas Referenciadas",
+        "Produtos da Nota",
+        "Produtos Selecionados",
+      ],
+      activeTab: 0,
       notas: [],
-      activeTab: 0, // Inicia com a primeira aba ativa
+      totalNotas: 0
     };
   },
   computed: {
-    tabs() {
-      return this.notas.map(nota => nota.nNF);
-    }
+    activeComponent() {
+      const components = [
+        "DadosEmitente",
+        "DadosDestinatario",
+        "NotasReferenciadas",
+        "ProdutosNota",
+        "ProdutosSelecionados",
+      ];
+      return components[this.activeTab];
+    },
   },
   mounted() {
-    // Carrega as notas fiscais do localStorage quando o componente é montado
     this.carregarNotasLocalStorage();
   },
   methods: {
-    adicionarNota(novaNota) {
-      this.notas.push(novaNota);
-      this.salvarNotasLocalStorage();
-      // Se não houver aba ativa, ativa a primeira aba (primeira nota)
-      if (this.activeTab === null || this.activeTab === undefined) {
-        this.activeTab = 0;
+    atualizarEmitente(notaFiscal) {
+      this.dadosEmitente = notaFiscal.emitente;
+      this.produtosNota = notaFiscal.produtos; // Atualiza a lista de produtos também
+      this.recalcularTotalNotas();
+    },
+    recalcularTotalNotas() {
+      this.totalNotas = this.notas.length;
+    },
+    goToNotaFiscal() {
+      this.$router.push({ name: "NotaFiscal" });
+    },
+    clearData() {
+      this.dadosEmitente = {};
+      this.dadosDestinatario = {};
+      this.notasReferenciadas = {};
+      this.produtosNota = [];
+      const activeComponentRef = this.$refs.activeComponentRef;
+      if (
+        activeComponentRef &&
+        typeof activeComponentRef.limparMunicipioUF === "function"
+      ) {
+        activeComponentRef.limparMunicipioUF();
       }
     },
     carregarNotasLocalStorage() {
-      const notasArmazenadas = JSON.parse(localStorage.getItem("notasFiscais")) || [];
-      this.notas = notasArmazenadas;
-      if (notasArmazenadas.length) {
+      const notasFiscais = JSON.parse(localStorage.getItem("notasFiscais")) || [];
+      this.notas = notasFiscais;
+      this.recalcularTotalNotas();
+      if (notasFiscais.length) {
         this.activeTab = 0;
       }
-    },
-    salvarNotasLocalStorage() {
-      localStorage.setItem("notasFiscais", JSON.stringify(this.notas));
     },
   },
 };
 </script>
 
 <style scoped>
-.teste {
-  width: 100%;
-  overflow-y: scroll;
-  height: calc(100vh - 13rem);
+.notafiscal-list .header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 2rem;
+}
+.notafiscal-list .header {
+  display: flex;
+  gap: 1rem;
+}
+.notafiscal-list .header button {
+  font-size: 3rem;
+  cursor: pointer;
+}
+.notafiscal-list .header .botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.notafiscal-list .header .botao .btn {
+  border-color: var(--black);
+  background-color: #007bff;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.8rem 0.5rem;
+}
+.notafiscal-list .header .botao .btn:hover {
+  background-color: #0056b3;
+}
+.notafiscal-list .header .botao .btn-remove {
+  background-color: #dc3545;
+}
+.notafiscal-list .header .botao .btn-remove:hover {
+  background-color: #c82333;
 }
 </style>

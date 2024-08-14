@@ -1,6 +1,7 @@
 <template>
   <div>
-    <input type="file" @change="onFileChange" accept=".xml" multiple />
+    <a class="btn" @click="triggerFileInput">Importar XML</a>
+    <input type="file" ref="fileInput" @change="onFileChange" style="display: none" accept=".xml" multiple />
     <button @click="limparLocalStorage">LIMPAR LOCALSTORAGE</button>
   </div>
 </template>
@@ -8,7 +9,11 @@
 <script>
 export default {
   name: "ImportarXML",
+  emits: ['nota-importada', 'limpar-notas'],
   methods: {
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
     onFileChange(event) {
       const files = event.target.files;
       if (files.length) {
@@ -26,57 +31,75 @@ export default {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlContent, "application/xml");
 
-      const nfe = xmlDoc.getElementsByTagName("NFe")[0];
+      const nfe = xmlDoc.querySelector("NFe");
       if (!nfe) {
         console.error("Não foi possível encontrar a tag <NFe>");
         return;
       }
 
-      const emitente = nfe.getElementsByTagName("emit")[0];
-      const destinatario = nfe.getElementsByTagName("dest")[0];
-      const protNFe =  nfe.getElementsByTagName("protNFe")[0];
-      const produtos = nfe.getElementsByTagName("det");
+      const emitente = nfe.querySelector("emit");
+      const destinatario = nfe.querySelector("dest");
+      const protNFe = xmlDoc.querySelector("protNFe");
+      const produtos = nfe.querySelectorAll("det");
 
       const notaFiscal = {
-        nNF: nfe.getElementsByTagName("nNF")[0]?.textContent || "N/A",
-        dhEmi: nfe.getElementsByTagName("dhEmi")[0]?.textContent || "N/A",
+        nNF: nfe.querySelector("nNF")?.textContent || "N/A",
+        dhEmi: nfe.querySelector("dhEmi")?.textContent || "N/A",
         emitente: {
-          CNPJ: emitente?.getElementsByTagName("CNPJ")[0]?.textContent || "N/A",
-          xNome: emitente?.getElementsByTagName("xNome")[0]?.textContent || "N/A",
+          CNPJ: emitente?.querySelector("CNPJ")?.textContent || "N/A",
+          xNome: emitente?.querySelector("xNome")?.textContent || "N/A",
+          xLgr: emitente?.querySelector("xLgr")?.textContent || "N/A",
+          nro: emitente?.querySelector("nro")?.textContent || "N/A",
+          xBairro: emitente?.querySelector("xBairro")?.textContent || "N/A",
+          cMun: emitente?.querySelector("cMun")?.textContent || "N/A",
+          xMun: emitente?.querySelector("xMun")?.textContent || "N/A",
+          UF: emitente?.querySelector("UF")?.textContent || "N/A",
+          CEP: emitente?.querySelector("CEP")?.textContent || "N/A",
+          IE: emitente?.querySelector("IE")?.textContent || "N/A",
         },
         destinatario: {
-          CNPJ: destinatario?.getElementsByTagName("CNPJ")[0]?.textContent || "N/A",
-          xNome: destinatario?.getElementsByTagName("xNome")[0]?.textContent || "N/A",
+          CNPJ: destinatario?.querySelector("CNPJ")?.textContent || "N/A",
+          xNome: destinatario?.querySelector("xNome")?.textContent || "N/A",
+          xLgr: destinatario?.querySelector("xLgr")?.textContent || "N/A",
+          nro: destinatario?.querySelector("nro")?.textContent || "N/A",
+          xBairro: destinatario?.querySelector("xBairro")?.textContent || "N/A",
+          cMun: destinatario?.querySelector("cMun")?.textContent || "N/A",
+          xMun: destinatario?.querySelector("xMun")?.textContent || "N/A",
+          UF: destinatario?.querySelector("UF")?.textContent || "N/A",
+          CEP: destinatario?.querySelector("CEP")?.textContent || "N/A",
+          IE: destinatario?.querySelector("IE")?.textContent || "N/A",
         },
-        protNFe: protNFe ? {
-          chNFe: protNFe.getElementsByTagName("chNFe")[0]?.textContent.trim() || "N/A",
-        } : { chNFe: "N/A" },
+        protNFe: {
+          chNFe: protNFe?.querySelector("chNFe")?.textContent || "N/A",
+        },
         produtos: [],
       };
 
-      for (let i = 0; i < produtos.length; i++) {
-        const prod = produtos[i].getElementsByTagName("prod")[0];
+      produtos.forEach(produto => {
+        const prod = produto.querySelector("prod");
         if (prod) {
+          const cProd = prod.querySelector("cProd")?.textContent.trim() || '';
+          const xProd = prod.querySelector("xProd")?.textContent.trim() || '';
+          const qCom = parseFloat(prod.querySelector("qCom")?.textContent.trim() || 0);
+          const vUnCom = parseFloat(prod.querySelector("vUnCom")?.textContent.trim() || 0);
+          const vlrTotal = qCom * vUnCom;
+
           notaFiscal.produtos.push({
-            cProd: prod.getElementsByTagName("cProd")[0]?.textContent || "N/A",
-            xProd: prod.getElementsByTagName("xProd")[0]?.textContent || "N/A",
-            qCom: prod.getElementsByTagName("qCom")[0]?.textContent || "N/A",
-            vUnCom: prod.getElementsByTagName("vUnCom")[0]?.textContent || "N/A",
-            vlrTotal: prod.getElementsByTagName("vProd")[0]?.textContent || "N/A",
+            cProd,
+            xProd,
+            qCom,
+            vUnCom: vUnCom.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }),
+            vlrTotal: vlrTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }),
           });
         }
-      }
+      });
 
-      // Verifica se a nota fiscal já está no localStorage
       if (this.isNotaFiscalDuplicada(notaFiscal)) {
         console.log(`Nota fiscal ${notaFiscal.nNF} já está importada.`);
         return;
       }
 
-      // Armazena a nota fiscal no localStorage
       this.salvarNotaLocalStorage(notaFiscal);
-
-      // Emite a nova nota fiscal processada
       this.$emit("nota-importada", notaFiscal);
     },
     isNotaFiscalDuplicada(notaFiscal) {
@@ -91,8 +114,7 @@ export default {
     limparLocalStorage() {
       localStorage.removeItem("notasFiscais");
       this.$emit("limpar-notas");
-      // Recarrega a página para limpar o estado atual
-      location.reload();
+      location.reload(); // Recarrega a página para limpar o estado atual
     }
   },
 };

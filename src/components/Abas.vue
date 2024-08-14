@@ -5,8 +5,8 @@
         :key="index"
         :class="{ active: activeTab === index }"
         @click="changeTab(index)"
+        v-html="tab"
       >
-        {{ tab }}
       </button>
     </div>
   </template>
@@ -35,18 +35,14 @@
 .tabs {
   display: flex;
   height: 6rem;
-  /* padding: 0 1rem; */
 }
 
 .tabs button {
   flex: 1;
-  /* padding: 1rem; */
   background-color: #d4d4d4;
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  /* font-size: 2rem; */
-  /* text-transform: uppercase; */
   transition: background-color 0.3s;
   margin: 0 .1rem;
   margin-top: .5rem;
@@ -57,7 +53,6 @@
 .tabs button.active {
   box-shadow: 0 .1rem .5rem #000;
   background-color: rgb(255, 241, 241);
-  font-weight: bold;
 }
 
 .tabs button.active:hover {
