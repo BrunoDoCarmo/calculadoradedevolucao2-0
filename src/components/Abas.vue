@@ -40,16 +40,12 @@
 
 .tabs button {
   flex: 1;
-  /* padding: 1rem; */
   background-color: #d4d4d4;
   border: none;
   cursor: pointer;
+  margin: 0 .3rem;
   white-space: nowrap;
-  /* font-size: 2rem; */
-  /* text-transform: uppercase; */
   transition: background-color 0.3s;
-  margin: 0 .1rem;
-  margin-top: .5rem;
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
 }
