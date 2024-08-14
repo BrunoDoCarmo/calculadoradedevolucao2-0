@@ -44,6 +44,7 @@
   border: none;
   cursor: pointer;
   margin: 0 .3rem;
+  margin-top: .5rem;
   white-space: nowrap;
   transition: background-color 0.3s;
   border-top-left-radius: 2rem;
