@@ -36,6 +36,7 @@
                   <input 
                     type="checkbox" 
                     v-model="produto.selecionado"
+                    @change="emitSelectedProducts"
                   >
                 </td>
               </tr>
@@ -74,6 +75,19 @@ export default {
       return this.notas.map(nota => `Nota Fiscal ${nota.nNF}`);
     }
   },
+  methods: {
+    emitSelectedProducts() {
+      const selectedProducts = [];
+      this.notas.forEach(nota => {
+        nota.produtos.forEach(produto => {
+          if (produto.selecionado) {
+            selectedProducts.push(produto);
+          }
+        });
+      });
+      this.$emit('update:selectedProducts', selectedProducts);
+    },
+  },
 };
 </script>
 
@@ -105,11 +119,11 @@ export default {
 }
 
 input[type="checkbox"] {
-  appearance: none; /* Remove o estilo padrão */
+  appearance: none; 
   width: 100%;
   height: 100%;
-  background-color: transparent;
-  border: none;
+  /* background-color: transparent; */
+  /* border: none; */
   cursor: pointer;
   position: relative;
 }

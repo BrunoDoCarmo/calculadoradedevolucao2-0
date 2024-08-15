@@ -5,7 +5,10 @@
     <p>Quantidade Nota Fiscal {{ totalNota }}</p>
     <Abas :abas="tabs" v-model:activeTab="activeTab"/>
     <div v-if="activeTab === 1">
-      <ProdutosNota :notas="notas"/>
+      <ProdutosNota :notas="notas" @update:selectedProducts="handleSelectedProducts" />
+    </div>
+    <div v-if="activeTab === 2">
+      <ProdutosSelecionados :produtos="produtosSelecionados" />
     </div>
   </div>
 </template>
@@ -14,6 +17,7 @@
 import ImportarXML from './ImportarXML.vue';
 import Abas from './Abas.vue';
 import ProdutosNota from './ProdutosNota.vue';
+import ProdutosSelecionados from './ProdutosSelecionados.vue';
 
 export default {
   name: 'NotaFiscalDevolucao',
@@ -21,46 +25,63 @@ export default {
     ImportarXML,
     Abas,
     ProdutosNota,
+    ProdutosSelecionados,
   },
   data() {
     return {
       activeTab: 0, // Inicia com a primeira aba ativa
       tabs: [
         'Dados Emitente',
-        'Produto Nota',
+        'Produtos Nota',
+        'Produtos Selecionados',
       ],
       notas:[],
+      produtosSelecionados: [],
       totalNota: 0
     };
   },
   mounted() {
     // Carrega as notas fiscais do localStorage quando o componente é montado
     this.carregarNotasLocalStorage();
+    this.produtosSelecionados = this.getProdutosSelecionados();
+    console.log('Produtos Selecionados Carregados:', this.produtosSelecionados); 
     this.recalcularTotalNota();
   },
   methods: {
+    handleSelectedProducts(selectedProducts) {
+      this.produtosSelecionados = selectedProducts;
+      this.salvarProdutosSelecionados(selectedProducts);
+    },
     adicionarNota(novaNota) {
       this.notas.push(novaNota);
       this.salvarNotasLocalStorage();
       this.recalcularTotalNota();
-      // Se não houver aba ativa, ativa a primeira aba (primeira nota)
-      if (this.activeTab === null || this.activeTab === undefined) {
-        this.activeTab = 0;
-      }
     },
     carregarNotasLocalStorage() {
       const notasArmazenadas = JSON.parse(localStorage.getItem("notasFiscais")) || [];
       this.notas = notasArmazenadas;
-      if (notasArmazenadas.length) {
-        this.activeTab = 0;
-      }
     },
     salvarNotasLocalStorage() {
       localStorage.setItem("notasFiscais", JSON.stringify(this.notas));
     },
+    getProdutosSelecionados() {
+      const produtosNoStorage = localStorage.getItem('produtosSelecionados');
+      if (produtosNoStorage) {
+        try {
+          return JSON.parse(produtosNoStorage);
+        } catch (e) {
+          console.error('Erro ao analisar JSON do localStorage:', e);
+          return []; // Retorna um array vazio se houver um erro
+        }
+      } else {
+        return []; // Retorna um array vazio se não houver dados
+      }
+    },
+    salvarProdutosSelecionados(produtos) {
+      localStorage.setItem('produtosSelecionados', JSON.stringify(produtos));
+    },
     recalcularTotalNota() {
       this.totalNota = this.notas.length;
-      console.log(this.totalNota)
     },
   },
 };

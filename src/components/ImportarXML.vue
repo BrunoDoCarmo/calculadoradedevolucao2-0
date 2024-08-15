@@ -113,6 +113,7 @@ export default {
     },
     limparLocalStorage() {
       localStorage.removeItem("notasFiscais");
+      localStorage.removeItem("produtosSelecionados");
       this.$emit("limpar-notas");
       location.reload(); // Recarrega a página para limpar o estado atual
     }
