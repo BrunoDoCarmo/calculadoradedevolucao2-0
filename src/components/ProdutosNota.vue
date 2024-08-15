@@ -79,7 +79,7 @@ export default {
 
 <style scoped>
 .table-container {
-  height: calc(100vh - 20rem);
+  height: calc(100vh - 22.5rem);
   overflow-y: auto;
 }
 .table-container th:nth-child(1),
@@ -112,25 +112,18 @@ input[type="checkbox"] {
   border: none;
   cursor: pointer;
   position: relative;
-  margin-top: .25rem;
 }
-
 
 /* Estilo do "checkmark" quando o checkbox está marcado */
 input[type="checkbox"]:checked::before {
   content: "✓"; /* Símbolo de checkmark */
   color: var(--green1);
-  font-size: 2rem;
+  font-size: 4rem;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%); /* Centraliza o checkmark */
   font-weight: bold;
-}
-
-/* Estilo adicional para hover */
-input[type="checkbox"]:hover {
-  border-color: #999; /* Cor da borda ao passar o mouse */
 }
 
 /* Estilo para a linha marcada */
