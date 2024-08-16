@@ -3,7 +3,7 @@
     <!-- Componente de importação de XML -->
     <ImportarXML @nota-importada="adicionarNota" />
     <p>Quantidade Nota Fiscal {{ totalNota }}</p>
-    <Abas :abas="tabs" v-model:activeTab="activeTab"/>
+    <Abas :abas="tabs" v-model:activeTab="activeTab" />
     <div v-if="activeTab === 1">
       <ProdutosNota :notas="notas" @update:selectedProducts="handleSelectedProducts" />
     </div>
@@ -12,13 +12,11 @@
     </div>
   </div>
 </template>
-
 <script>
 import ImportarXML from './ImportarXML.vue';
 import Abas from './Abas.vue';
 import ProdutosNota from './ProdutosNota.vue';
 import ProdutosSelecionados from './ProdutosSelecionados.vue';
-
 export default {
   name: 'NotaFiscalDevolucao',
   components: {
@@ -35,16 +33,16 @@ export default {
         'Produtos Nota',
         'Produtos Selecionados',
       ],
-      notas:[],
+      notas: [],
       produtosSelecionados: [],
-      totalNota: 0
+      totalNota: 0,
     };
   },
   mounted() {
     // Carrega as notas fiscais do localStorage quando o componente é montado
     this.carregarNotasLocalStorage();
     this.produtosSelecionados = this.getProdutosSelecionados();
-    console.log('Produtos Selecionados Carregados:', this.produtosSelecionados); 
+    console.log('Produtos Selecionados Carregados:', this.produtosSelecionados);
     this.recalcularTotalNota();
   },
   methods: {
@@ -58,11 +56,11 @@ export default {
       this.recalcularTotalNota();
     },
     carregarNotasLocalStorage() {
-      const notasArmazenadas = JSON.parse(localStorage.getItem("notasFiscais")) || [];
+      const notasArmazenadas = JSON.parse(localStorage.getItem('notasFiscais')) || [];
       this.notas = notasArmazenadas;
     },
     salvarNotasLocalStorage() {
-      localStorage.setItem("notasFiscais", JSON.stringify(this.notas));
+      localStorage.setItem('notasFiscais', JSON.stringify(this.notas));
     },
     getProdutosSelecionados() {
       const produtosNoStorage = localStorage.getItem('produtosSelecionados');
@@ -86,6 +84,5 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 </style>

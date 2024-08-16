@@ -1,10 +1,7 @@
 <template>
   <div>
     <!-- Componente de abas que mostra as notas -->
-    <Abas
-      :abas="tabs"
-      v-model:activeTab="activeTab"
-    />
+    <Abas :abas="tabs" v-model:activeTab="activeTab" />
 
     <!-- Mostra os produtos da nota fiscal ativa -->
     <div v-if="notas.length">
@@ -31,13 +28,13 @@
                 <td>{{ produto.xProd }}</td>
                 <td>{{ produto.qCom }}</td>
                 <td>{{ produto.vUnCom }}</td>
-                <td>{{ produto.vlrTotal }}</td>
+                <td>{{ calcularValorTotal(produto) }}</td>
                 <td>
                   <input 
                     type="checkbox" 
                     v-model="produto.selecionado"
                     @change="emitSelectedProducts"
-                  >
+                  />
                 </td>
               </tr>
             </tbody>
@@ -50,10 +47,8 @@
     </div>
   </div>
 </template>
-
 <script>
 import Abas from './Abas.vue';
-
 export default {
   name: 'ProdutosNota',
   components: {
@@ -61,9 +56,9 @@ export default {
   },
   props: {
     notas: {
-      type:Array,
-      required: true
-    }
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
@@ -73,9 +68,21 @@ export default {
   computed: {
     tabs() {
       return this.notas.map(nota => `Nota Fiscal ${nota.nNF}`);
-    }
+    },
+  },
+  mounted() {
+    this.carregarSelecaoLocalStorage();
   },
   methods: {
+    calcularValorTotal(produto) {
+      const valorUnitario = parseFloat(produto.vUnCom.replace(/[^\d,.-]/g, '').replace(",", "."));
+      const quantidade = parseFloat(produto.qCom);
+      if (!isNaN(quantidade) && !isNaN(valorUnitario) && quantidade >= 0) {
+        return (quantidade * valorUnitario).toFixed(2);
+      } else {
+        return "0.00";
+      }
+    },
     emitSelectedProducts() {
       const selectedProducts = [];
       this.notas.forEach(nota => {
@@ -85,12 +92,36 @@ export default {
           }
         });
       });
+      this.salvarSelecaoLocalStorage(); // Salva a seleção no localStorage sempre que for alterada
       this.$emit('update:selectedProducts', selectedProducts);
+    },
+    salvarSelecaoLocalStorage() {
+      const selecao = this.notas.map(nota => ({
+        nNF: nota.nNF,
+        produtos: nota.produtos.map(produto => ({
+          cProd: produto.cProd,
+          selecionado: produto.selecionado || false,
+        })),
+      }));
+      localStorage.setItem('selecaoProdutos', JSON.stringify(selecao));
+    },
+    carregarSelecaoLocalStorage() {
+      const selecaoArmazenada = JSON.parse(localStorage.getItem('selecaoProdutos')) || [];
+      selecaoArmazenada.forEach(selecao => {
+        const notaCorrespondente = this.notas.find(nota => nota.nNF === selecao.nNF);
+        if (notaCorrespondente) {
+          selecao.produtos.forEach(produtoSelecionado => {
+            const produtoCorrespondente = notaCorrespondente.produtos.find(produto => produto.cProd === produtoSelecionado.cProd);
+            if (produtoCorrespondente) {
+              produtoCorrespondente.selecionado = produtoSelecionado.selecionado;
+            }
+          });
+        }
+      });
     },
   },
 };
 </script>
-
 <style scoped>
 .table-container {
   height: calc(100vh - 22.5rem);
@@ -112,36 +143,28 @@ export default {
 .table-container td:nth-child(5) {
   width: 10%;
 }
-
 .table-container td:nth-child(2) {
   text-align: left;
   padding-left: .5rem;
 }
-
 input[type="checkbox"] {
   appearance: none; 
   width: 100%;
   height: 100%;
-  /* background-color: transparent; */
-  /* border: none; */
   cursor: pointer;
   position: relative;
 }
-
-/* Estilo do "checkmark" quando o checkbox está marcado */
 input[type="checkbox"]:checked::before {
-  content: "✓"; /* Símbolo de checkmark */
+  content: "✓"; 
   color: var(--green1);
   font-size: 4rem;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Centraliza o checkmark */
+  transform: translate(-50%, -50%);
   font-weight: bold;
 }
-
-/* Estilo para a linha marcada */
 .linha-marcada {
-  background-color: var(--green3); /* Cor de fundo para a linha marcada */
+  background-color: var(--green3);
 }
 </style>
