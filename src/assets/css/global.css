@@ -142,6 +142,7 @@ body {
   font-size: 1.3rem;
   text-transform: uppercase;
   height: 4rem;
+  border: 0.15rem solid #000;
 }
 .table-container tr {
   border: 0.15rem solid #000;
