@@ -71,26 +71,4 @@ export default {
   };
 </script> 
 <style scoped>
-.table-container {
-    height: calc(100vh - 26rem);
-    overflow-y: auto;
-}
-.table-container th:nth-child(1),
-.table-container td:nth-child(1) {
-    width: 12%;
-}
-.table-container th:nth-child(3),
-.table-container td:nth-child(3){
-    width: 8%;
-}
-.table-container th:nth-child(4),
-.table-container td:nth-child(4),
-.table-container th:nth-child(5),
-.table-container td:nth-child(5) {
-    width: 10%;
-}
-.table-container td:nth-child(2) {
-    text-align: left;
-    padding-left: .5rem;
-}
 </style>

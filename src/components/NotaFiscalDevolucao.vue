@@ -42,7 +42,6 @@ export default {
     // Carrega as notas fiscais do localStorage quando o componente é montado
     this.carregarNotasLocalStorage();
     this.produtosSelecionados = this.getProdutosSelecionados();
-    console.log('Produtos Selecionados Carregados:', this.produtosSelecionados);
     this.recalcularTotalNota();
   },
   methods: {
