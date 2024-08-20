@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>IMPOSTOS NOTA</h3>
+        <h3>IMPOSTOS MASTER</h3>
     </div>
 </template>
 <script>
