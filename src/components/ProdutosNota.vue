@@ -16,7 +16,6 @@
                   <th>Nome Produto</th>
                   <th>QTD</th>
                   <th>VLR Unit.</th>
-                  <th>VLR Desc.</th>
                   <th>VLR Total</th>
                   <th>Ação</th>
                 </tr>
@@ -31,7 +30,6 @@
                   <td>{{ produto.xProd }}</td>
                   <td>{{ produto.qCom }}</td>
                   <td>{{ produto.vUnCom }}</td>
-                  <td>{{ produto.vDesc }}</td>
                   <td>{{ calcularValorTotal(produto) }}</td>
                   <td>
                     <input 
@@ -46,27 +44,30 @@
           </div>
         </div>
         <div v-show="activeSubTab === 1">
-          <div class="table-container">
-            <table class="imposto-tabela">
-              <thead>
-                <tr>
-                  <th>BC ICMS</th>
-                  <th>Alíquota ICMS</th>
-                  <th>Valor ICMS</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr 
-                  v-for="(produto, prodIndex) in nota.produtos" 
-                  :key="prodIndex" 
-                  :class="{ 'linha-marcada': produto.selecionado }"
-                >
-                  <td>{{ calcularDesconto(produto) }}</td>
-                  <td>{{ produto.pICMS }}</td>
-                  <td>{{ produto.qCom }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <Abas :abas="subsubtabs" v-model:activeTab="activeSubSubTab" />
+          <div v-show="activeSubSubTab === 0">
+            <div class="table-container">
+              <table class="imposto-tabela">
+                <thead>
+                  <tr>
+                    <th>BC ICMS</th>
+                    <th>Alíquota ICMS</th>
+                    <th>Valor ICMS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr 
+                    v-for="(produto, prodIndex) in nota.produtos" 
+                    :key="prodIndex" 
+                    :class="{ 'linha-marcada': produto.selecionado }"
+                  >
+                    <td>{{ calcularDesconto(produto) }}</td>
+                    <td>{{ produto.pICMS }}</td>
+                    <td>{{ calcularValorICMS(produto) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -93,9 +94,13 @@ export default {
     return {
       activeTab: 0, // Inicia com a primeira aba ativa
       activeSubTab: 0, // Inicia com a primeira aba ativa
+      activeSubSubTab: 0, // Inicia com a primeira aba ativa
       subtabs: [
           'Produtos',
           'Imposto'
+      ],
+      subsubtabs: [
+          'ICMS',
       ],
     };
   },
@@ -108,22 +113,38 @@ export default {
     this.carregarSelecaoLocalStorage();
   },
   methods: {
-    calcularValorTotal(produto) {
+    calcularValorTotal(produto, returnRaw = false) {
+
       const valorUnitario = parseFloat(produto.vUnCom.replace(/[^\d,.-]/g, '').replace(",", "."));
       const quantidade = parseFloat(produto.qCom);
-      if (!isNaN(quantidade) && !isNaN(valorUnitario) && quantidade >= 0) {
-        return (quantidade * valorUnitario).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
-      } else {
-        return "0.00";
-      }
-    },
-    calcularDesconto(produto) {
-      const valorTotal = this.calcularValorTotal(produto);
-      const valorDesconto = parseFloat(produto.vDesc.replace(/[^\d,.-]/g, '').replace(",", "."));
-      const valorComDesconto = valorTotal - valorDesconto;
 
-      if (!isNaN(valorComDesconto) && valorComDesconto >= 0) {
-        return valorComDesconto.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      if (!isNaN(quantidade) && !isNaN(valorUnitario) && quantidade >= 0) {
+        const valorTotal = quantidade * valorUnitario;
+        return returnRaw ? valorTotal : valorTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      } else {
+        return returnRaw ? 0 : "0.00";
+      }
+
+    },
+    calcularDesconto(produto, returnRaw = false) {
+
+      const valorTotal = this.calcularValorTotal(produto, true);
+      const valorDesconto = parseFloat(produto.vDesc.replace(/[^\d,.-]/g, '').replace(",", "."));
+      
+      if (!isNaN(valorTotal) && !isNaN(valorDesconto)) {
+        return returnRaw ? (valorTotal - valorDesconto) : (valorTotal - valorDesconto).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      } else {
+        return returnRaw ? 0 : valorTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      }
+      
+    },
+    calcularValorICMS(produto) {
+      const valorBCICMS = this.calcularDesconto(produto, true); // Base de cálculo após o desconto
+      const aliquotaICMS = parseFloat(produto.pICMS.replace(/[^\d,.-]/g, '').replace(",", ".")); // Transformar a alíquota para decimal
+
+      if (!isNaN(valorBCICMS) && !isNaN(aliquotaICMS)) {
+        const valorICMS = ((valorBCICMS * aliquotaICMS) / 100);
+        return valorICMS.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
       } else {
         return "0.00";
       }
@@ -169,7 +190,7 @@ export default {
 </script>
 <style scoped>
 .table-container {
-  height: calc(100vh - 22.5rem);
+  height: calc(100vh - 28.5rem);
   overflow-y: auto;
 }
 .table-container th:nth-child(1),
