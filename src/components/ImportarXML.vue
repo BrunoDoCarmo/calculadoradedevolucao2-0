@@ -100,6 +100,7 @@ export default {
       });
 
       if (this.isNotaFiscalDuplicada(notaFiscal)) {
+        console.log(`Nota fiscal ${notaFiscal.nNF} já está importada.`);
         return;
       }
 

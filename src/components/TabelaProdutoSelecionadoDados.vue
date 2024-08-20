@@ -7,6 +7,7 @@
                 <th>Nome Produto</th>
                 <th>QTD</th>
                 <th>VLR Unit.</th>
+                <th>VLR Desc.</th>
                 <th>VLR Total</th>
                 <th>Ação</th>
             </tr>
@@ -27,6 +28,7 @@
                 />
                 </td>
                 <td>{{ produto.vUnCom }}</td>
+                <td>{{ produto.vDesc }}</td>
                 <td>{{ calcularValorTotal(produto) }}</td>
                 <td>
                     <a
@@ -47,7 +49,7 @@
   
 <script>
 export default {
-    name: 'TabelaProdutoSelecionado',
+    name: 'TabelaProdutoSelecionadoDados',
     props: {
         produtos: {
             type: Array,

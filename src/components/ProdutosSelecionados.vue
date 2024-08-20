@@ -4,24 +4,31 @@
         <p>Produtos Selecionados: {{ totalProdutoSelecionados }}</p>
         <p>Valor Total Selecionado: {{ calcularValorTotalSelecionado }}</p>
         <div v-if="activeTab === 0">
-        <TabelaProdutoSelecionado
-            :produtos="produtosSelecionados"
-            :total-produto="totalProdutoSelecionados"
-            @update:selectedProducts="handleUpdateSelectedProducts, atualizarProdutosSelecionados"
-        />
+            <TabelaProdutoSelecionadoDados
+                :produtos="produtosSelecionados"
+                :total-produto="totalProdutoSelecionados"
+                @update:selectedProducts="handleUpdateSelectedProducts, atualizarProdutosSelecionados"
+            />
         </div>
+        <div v-if="activeTab === 1">
+            <TabelaProdutoSelecionadoImpostos
+            />
+        </div>
+
     </div>
 </template>
   
 <script>
 import Abas from './Abas.vue';
-import TabelaProdutoSelecionado from './TabelaProdutoSelecionado.vue';
+import TabelaProdutoSelecionadoDados from './TabelaProdutoSelecionadoDados.vue';
+import TabelaProdutoSelecionadoImpostos from './TabelaProdutoSelecionadoImpostos.vue';
   
 export default {
     name: 'ProdutosSelecionados',
     components: {
         Abas,
-        TabelaProdutoSelecionado,
+        TabelaProdutoSelecionadoDados,
+        TabelaProdutoSelecionadoImpostos,
     },
     props: {
         produtos: {

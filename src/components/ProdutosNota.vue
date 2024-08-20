@@ -6,69 +6,39 @@
     <!-- Mostra os produtos da nota fiscal ativa -->
     <div v-if="notas.length">
       <div v-for="(nota, index) in notas" :key="index" v-show="activeTab === index">
-        <Abas :abas="subtabs" v-model:activeTab="activeSubTab" />
-        <div v-show="activeSubTab === 0">
-          <div class="table-container">
-            <table class="produtos-tabela">
-              <thead>
-                <tr>
-                  <th>Cod. Prod.</th>
-                  <th>Nome Produto</th>
-                  <th>QTD</th>
-                  <th>VLR Unit.</th>
-                  <th>VLR Total</th>
-                  <th>Ação</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr 
-                  v-for="(produto, prodIndex) in nota.produtos" 
-                  :key="prodIndex" 
-                  :class="{ 'linha-marcada': produto.selecionado }"
-                >
-                  <td>{{ produto.cProd }}</td>
-                  <td>{{ produto.xProd }}</td>
-                  <td>{{ produto.qCom }}</td>
-                  <td>{{ produto.vUnCom }}</td>
-                  <td>{{ calcularValorTotal(produto) }}</td>
-                  <td>
-                    <input 
-                      type="checkbox" 
-                      v-model="produto.selecionado"
-                      @change="emitSelectedProducts"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div v-show="activeSubTab === 1">
-          <Abas :abas="subsubtabs" v-model:activeTab="activeSubSubTab" />
-          <div v-show="activeSubSubTab === 0">
-            <div class="table-container">
-              <table class="imposto-tabela">
-                <thead>
-                  <tr>
-                    <th>BC ICMS</th>
-                    <th>Alíquota ICMS</th>
-                    <th>Valor ICMS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr 
-                    v-for="(produto, prodIndex) in nota.produtos" 
-                    :key="prodIndex" 
-                    :class="{ 'linha-marcada': produto.selecionado }"
-                  >
-                    <td>{{ calcularDesconto(produto) }}</td>
-                    <td>{{ produto.pICMS }}</td>
-                    <td>{{ calcularValorICMS(produto) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div class="table-container">
+          <table class="produtos-tabela">
+            <thead>
+              <tr>
+                <th>Cod. Prod.</th>
+                <th>Nome Produto</th>
+                <th>QTD</th>
+                <th>VLR Unit.</th>
+                <th>VLR Total</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="(produto, prodIndex) in nota.produtos" 
+                :key="prodIndex" 
+                :class="{ 'linha-marcada': produto.selecionado }"
+              >
+                <td>{{ produto.cProd }}</td>
+                <td>{{ produto.xProd }}</td>
+                <td>{{ produto.qCom }}</td>
+                <td>{{ produto.vUnCom }}</td>
+                <td>{{ calcularValorTotal(produto) }}</td>
+                <td>
+                  <input 
+                    type="checkbox" 
+                    v-model="produto.selecionado"
+                    @change="emitSelectedProducts"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
