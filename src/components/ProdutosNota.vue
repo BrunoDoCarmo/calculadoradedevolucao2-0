@@ -14,7 +14,6 @@
                 <th>Nome Produto</th>
                 <th>QTD</th>
                 <th>VLR Unit.</th>
-                <th>VLR Desc.</th>
                 <th>VLR Total</th>
                 <th>Ação</th>
               </tr>
@@ -29,7 +28,6 @@
                 <td>{{ produto.xProd }}</td>
                 <td>{{ produto.qCom }}</td>
                 <td>{{ produto.vUnCom }}</td>
-                <td>{{ produto.vDesc }}</td>
                 <td>{{ calcularValorTotal(produto) }}</td>
                 <td>
                   <input 
@@ -65,6 +63,15 @@ export default {
   data() {
     return {
       activeTab: 0, // Inicia com a primeira aba ativa
+      activeSubTab: 0, // Inicia com a primeira aba ativa
+      activeSubSubTab: 0, // Inicia com a primeira aba ativa
+      subtabs: [
+          'Produtos',
+          'Imposto'
+      ],
+      subsubtabs: [
+          'ICMS',
+      ],
     };
   },
   computed: {
@@ -76,11 +83,38 @@ export default {
     this.carregarSelecaoLocalStorage();
   },
   methods: {
-    calcularValorTotal(produto) {
+    calcularValorTotal(produto, returnRaw = false) {
+
       const valorUnitario = parseFloat(produto.vUnCom.replace(/[^\d,.-]/g, '').replace(",", "."));
       const quantidade = parseFloat(produto.qCom);
+
       if (!isNaN(quantidade) && !isNaN(valorUnitario) && quantidade >= 0) {
-        return (quantidade * valorUnitario).toFixed(2);
+        const valorTotal = quantidade * valorUnitario;
+        return returnRaw ? valorTotal : valorTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      } else {
+        return returnRaw ? 0 : "0.00";
+      }
+
+    },
+    calcularDesconto(produto, returnRaw = false) {
+
+      const valorTotal = this.calcularValorTotal(produto, true);
+      const valorDesconto = parseFloat(produto.vDesc.replace(/[^\d,.-]/g, '').replace(",", "."));
+      
+      if (!isNaN(valorTotal) && !isNaN(valorDesconto)) {
+        return returnRaw ? (valorTotal - valorDesconto) : (valorTotal - valorDesconto).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      } else {
+        return returnRaw ? 0 : valorTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+      }
+      
+    },
+    calcularValorICMS(produto) {
+      const valorBCICMS = this.calcularDesconto(produto, true); // Base de cálculo após o desconto
+      const aliquotaICMS = parseFloat(produto.pICMS.replace(/[^\d,.-]/g, '').replace(",", ".")); // Transformar a alíquota para decimal
+
+      if (!isNaN(valorBCICMS) && !isNaN(aliquotaICMS)) {
+        const valorICMS = ((valorBCICMS * aliquotaICMS) / 100);
+        return valorICMS.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
       } else {
         return "0.00";
       }
@@ -126,7 +160,7 @@ export default {
 </script>
 <style scoped>
 .table-container {
-  height: calc(100vh - 22.5rem);
+  height: calc(100vh - 28.5rem);
   overflow-y: auto;
 }
 .table-container th:nth-child(1),
@@ -134,15 +168,19 @@ export default {
   width: 12%;
 }
 .table-container th:nth-child(3),
-.table-container td:nth-child(3),
-.table-container th:nth-child(6),
-.table-container td:nth-child(6) {
+.table-container td:nth-child(3) {
   width: 8%;
+}
+.table-container th:nth-child(7),
+.table-container td:nth-child(7) {
+  width: 5%;
 }
 .table-container th:nth-child(4),
 .table-container td:nth-child(4),
 .table-container th:nth-child(5),
-.table-container td:nth-child(5) {
+.table-container td:nth-child(5),
+.table-container th:nth-child(6),
+.table-container td:nth-child(6) {
   width: 10%;
 }
 .table-container td:nth-child(2) {

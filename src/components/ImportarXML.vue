@@ -77,19 +77,24 @@ export default {
 
       produtos.forEach(produto => {
         const prod = produto.querySelector("prod");
+        const imposto = produto.querySelector("imposto");
+
         if (prod) {
           const cProd = prod.querySelector("cProd")?.textContent.trim() || '';
           const xProd = prod.querySelector("xProd")?.textContent.trim() || '';
           const qCom = parseFloat(prod.querySelector("qCom")?.textContent.trim() || 0);
           const vUnCom = parseFloat(prod.querySelector("vUnCom")?.textContent.trim() || 0);
-          const vlrTotal = qCom * vUnCom;
+          const vDesc = parseFloat(prod.querySelector("vDesc")?.textContent.trim() || 0);
+          const pICMS = parseFloat(imposto.querySelector("pICMS")?.textContent.trim() || 0);
 
           notaFiscal.produtos.push({
             cProd,
             xProd,
             qCom,
             vUnCom: vUnCom.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }),
-            vlrTotal: vlrTotal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }),
+            vDesc: vDesc.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }),
+            // pICMS: (pICMS * 100).toFixed(2) + '%',
+            pICMS: pICMS.toFixed(2) + '%',
           });
         }
       });
